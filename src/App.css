@@ -1,22 +1,18 @@
-#header {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 260px;
-    height: 100%;
-    overflow-y: auto;
-    z-index: 10000;
-    background-color: #fff;
+body {
+    margin: 0;
+    padding: 0;
+
+    color: white;
+    background-color: #000;
 }
-#main {
-    max-width: 2000px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding-left: 260px;
-    background-color: #f8f8f8;
+
+#header {
+    width: 100%;
+}
+#container {
+    width: 100%;
 }
 #footer {
+    width: 100%;
     text-align: center;
-    background-color: #f0f0f0;
-    padding: 20px 20px 20px 260px;
 }

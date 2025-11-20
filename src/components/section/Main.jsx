@@ -1,11 +1,16 @@
 import React from "react";
-import ChatDock from "../chat/ChatDock";
+import Header from "./Header";
+import Footer from "./Footer";
 
 function Main(props) {
     return (
-        <main id="main" role="main">
-            {props.children}
-        </main>
+        <>
+            <Header />
+            <main id="main" role="main">
+                {props.children}
+            </main>
+            <Footer />
+        </>
     );
 }
 
