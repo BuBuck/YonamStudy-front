@@ -1,9 +1,8 @@
-import React from 'react';
+import React from "react";
 
 function Footer() {
-
     return (
-        <footer id='footer' role='contentInfo'>
+        <footer id="footer" role="contentInfo">
             footer
         </footer>
     );
