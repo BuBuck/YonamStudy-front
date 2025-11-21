@@ -3,7 +3,7 @@ import { createContext, useEffect, useState } from "react";
 export const AuthContext = createContext(null);
 
 function handleLogoutCleanup() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("expiresToken");
     localStorage.removeItem("expiresAt");
     localStorage.removeItem("user");
 }
@@ -15,10 +15,10 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const expiresToken = localStorage.getItem("expiresToken");
                 const expiresAt = localStorage.getItem("expiresAt");
 
-                if (!token || !expiresAt) {
+                if (!expiresToken || !expiresAt) {
                     handleLogoutCleanup();
                 }
 
