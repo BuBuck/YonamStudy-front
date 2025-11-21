@@ -1,7 +1,9 @@
 import React, { lazy, Suspense, useContext } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 
+import Header from "./components/section/Header";
 import Main from "./components/section/Main";
+import Footer from "./components/section/Footer";
 
 const MainPage = lazy(() => import("./pages/MainPage"));
 const AuthTestPage = lazy(() => import("./components/AuthTestPage"));
@@ -24,6 +26,7 @@ function App() {
 
     return (
         <BrowserRouter>
+            <Header />
             <Suspense fallback={<Main />}>
                 <Routes>
                     <Route exact path="/" element={<MainPage />} />
@@ -60,6 +63,7 @@ function App() {
                 </Routes>
             </Suspense>
             {data.isAuthenticated && <ChatDock />}
+            <Footer />
         </BrowserRouter>
     );
 }
