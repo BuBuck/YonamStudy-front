@@ -1,6 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-export const AuthContext = createContext(null);
+import { AuthContext } from "./AuthContext";
 
 function handleLogoutCleanup() {
     localStorage.removeItem("expiresToken");
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         checkLoginStatus();
-    }, [isAuthenticated]);
+    }, []);
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, isLoading }}>
