@@ -6,7 +6,7 @@ import Main from "./components/section/Main";
 import Footer from "./components/section/Footer";
 
 const MainPage = lazy(() => import("./pages/MainPage"));
-const AuthTestPage = lazy(() => import("./components/AuthTestPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
 const CreateGroupPage = lazy(() => import("./pages/CreateGroupPage"));
@@ -33,12 +33,10 @@ function App() {
                     <Route
                         exact
                         path="/auth"
-                        element={
-                            !data.isAuthenticated ? <AuthTestPage /> : <Navigate to="/" replace />
-                        }
+                        element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
                     />
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
-                    <Route exact path="/groups/:groupId" element={<GroupPage />} />
+                    <Route exact path="/group/:groupId" element={<GroupPage />} />
                     <Route exact path="/createGroup" element={<CreateGroupPage />} />
                     <Route exact path="/dashboard" element={<DashboardPage />} />
                     <Route
