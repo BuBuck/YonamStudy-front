@@ -1,9 +1,16 @@
-import React from 'react';
+import React from "react";
+import { useParams } from "react-router-dom";
+
+import Comment from "../components/comment/Comment";
 
 function GroupPage() {
+    const { groupId } = useParams();
 
     return (
-        <div>GroupPage</div>
+        <div>
+            GroupPage
+            <Comment groupId={groupId} />
+        </div>
     );
 }
 
