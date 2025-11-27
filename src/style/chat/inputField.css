@@ -1,0 +1,9 @@
+.input-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .input-container {
+        margin: 16px;
+    }
+}
