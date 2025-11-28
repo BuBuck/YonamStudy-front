@@ -27,7 +27,7 @@ function Comment({ groupId }) {
     const handleAddComment = async (content) => {
         try {
             const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/comment`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/comments`,
                 { content: content, userId: user.userId }
             );
             setComments([...comments, res.data]);
