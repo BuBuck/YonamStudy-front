@@ -4,12 +4,12 @@ import axios from "axios";
 import socket from "../../server";
 
 import ChatHeader from "./ChatHeader";
-import ChatListPage from "../../pages/chat/ChatListPage";
-import ChatPage from "../../pages/chat/ChatPage";
+import ChatListPage from "./ChatList";
+import ChatPage from "../../pages/ChatPage";
 
 import { IoPaperPlaneOutline } from "react-icons/io5";
 
-import "../../style/chat/chatDock.css";
+import "../../style/chat/ChatDock.css";
 
 function ChatDock() {
     const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +88,7 @@ function ChatDock() {
         const handleReceivedMessage = (newMessage) => {
             if (newMessage.sender._id === user._id) return;
             if (selectGroup && selectGroup._id === newMessage.group) return;
-            
+
             setNotification((prevState) => prevState + 1);
 
             setUnreadMap((prevState) => ({

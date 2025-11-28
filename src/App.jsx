@@ -11,7 +11,7 @@ const SearchPage = lazy(() => import("./pages/SearchPage"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
 const CreateGroupPage = lazy(() => import("./pages/CreateGroupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
 const Not = lazy(() => import("./pages/Not"));
 
 import { AuthContext } from "./contexts/AuthContext";

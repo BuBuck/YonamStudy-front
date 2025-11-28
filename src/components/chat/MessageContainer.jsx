@@ -1,6 +1,6 @@
 import React from "react";
 
-import "../../style/chat/messageContainer.css";
+import "../../style/chat/MessageContainer.css";
 
 const MessageContainer = ({ messageList, user }) => {
     return (

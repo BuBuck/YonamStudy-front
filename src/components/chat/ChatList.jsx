@@ -1,4 +1,4 @@
-import "../../style/chat/chatListPage.css";
+import "../../style/chat/ChatList.css";
 
 const formatTime = (isoString) => {
     if (!isoString) return "";
@@ -39,7 +39,7 @@ const formatTime = (isoString) => {
     });
 };
 
-function ChatListPage({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
+function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
     return (
         <div className="chatList-body">
             {groups.length > 0
@@ -156,4 +156,4 @@ function ChatListPage({ onSelectGroup, groups, user, unreadMap, lastMessageMap }
     );
 }
 
-export default ChatListPage;
+export default ChatList;

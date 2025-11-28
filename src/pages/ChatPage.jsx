@@ -1,10 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 // import { useParams } from "react-router-dom";
 import axios from "axios";
-import socket from "../../server";
+import socket from "../server";
 
-import MessageContainer from "../../components/chat/MessageContainer";
-import InputField from "../../components/chat/InputField";
+import MessageContainer from "../components/chat/MessageContainer";
+import InputField from "../components/chat/InputField";
 
 function ChatPage({ selectGroup, user }) {
     const [messageList, setMessageList] = useState([]);
