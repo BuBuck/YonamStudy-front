@@ -21,7 +21,7 @@ function ChatPage({ selectGroup, user }) {
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/chat/messages/${selectGroup._id}`
+                    `${import.meta.env.VITE_BACKEND_URL}/api/chat/${selectGroup._id}/messages`
                 );
                 setMessageList(res.data);
             } catch (error) {
