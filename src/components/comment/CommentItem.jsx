@@ -31,20 +31,25 @@ function CommentItem({ comment, onEdit, onDelete }) {
                 </div>
             ) : (
                 // 일반 모드일 때
-                <div style={{ display: "flex", gap: "5px" }}>
-                    <span>{comment.content}</span>
-                    {user?.userId === writerId ? (
-                        <div>
-                            <button
-                                onClick={() => {
-                                    setIsEditing(true);
-                                }}
-                            >
-                                수정
-                            </button>
-                            <button onClick={() => onDelete(comment._id)}>삭제</button>
-                        </div>
-                    ) : null}
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        {comment.content}
+                        {user?.userId === writerId ? (
+                            <div>
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(true);
+                                    }}
+                                >
+                                    수정
+                                </button>
+                                <button onClick={() => onDelete(comment._id)}>삭제</button>
+                            </div>
+                        ) : null}
+                    </div>
+                    <div>
+                        {comment.commenter.name} ( {comment.commenter.major} )
+                    </div>
                 </div>
             )}
             <hr />

@@ -82,7 +82,6 @@ function Comment({ groupId }) {
 
     return (
         <div>
-            <h1>댓글 기능</h1>
             {/* 댓글 입력창 */}
             <CommentInput onAddComment={handleAddComment} />
             {/* 댓글 목록 (수정/삭제 기능 포함) */}
