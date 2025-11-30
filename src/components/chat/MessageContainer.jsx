@@ -5,6 +5,7 @@ import "../../style/chat/MessageContainer.css";
 const MessageContainer = ({ messageList, user }) => {
     return (
         <div>
+            {console.log(messageList)}
             {messageList.map((message, index) => {
                 return (
                     <div key={message._id} className="message-container">
@@ -27,7 +28,9 @@ const MessageContainer = ({ messageList, user }) => {
                             <div className="your-message-container">
                                 <div className="profile-image">
                                     <img
-                                        src="/profile.png"
+                                        src={`${import.meta.env.VITE_BACKEND_URL}${
+                                            message.sender.userProfile
+                                        }`}
                                         style={
                                             (index === 0
                                                 ? { visibility: "visible" }
