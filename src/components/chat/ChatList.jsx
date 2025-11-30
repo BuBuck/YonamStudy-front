@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "../../style/chat/ChatList.css";
 
 const formatTime = (isoString) => {
@@ -33,6 +34,8 @@ const formatTime = (isoString) => {
 };
 
 function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
+    const [selectGroup, setSelectGroup] = useState(null);
+
     return (
         <div className="chatList-body">
             {groups.length > 0
@@ -48,7 +51,11 @@ function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
                                             role="button"
                                             tabIndex={0}
                                             key={group._id}
-                                            onClick={() => onSelectGroup(group)}
+                                            onClick={() => {
+                                                onSelectGroup(group);
+                                                setSelectGroup(group);
+                                            }}
+                                            style={selectGroup && { backgroundColor: "#222" }}
                                         >
                                             <div style={{ display: "flex", flexDirection: "row" }}>
                                                 <img

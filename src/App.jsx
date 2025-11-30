@@ -5,19 +5,20 @@ import Header from "./components/section/Header";
 import Main from "./components/section/Main";
 import Footer from "./components/section/Footer";
 
+import ChatDock from "./components/chat/ChatDock";
+
 import MainPage from "./pages/MainPage";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
 import GroupPage from "./pages/GroupPage";
 import CreateGroupPage from "./pages/CreateGroupPage";
 import DashboardPage from "./pages/DashboardPage";
-import ChatPage from "./pages/ChatPage";
+import FullChatPage from "./pages/FullChatPage";
 import Not from "./pages/Not";
 
-import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./contexts/auth/AuthContext";
 
-import ChatDock from "./components/chat/ChatDock";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./App.css";
 
@@ -26,10 +27,19 @@ function App() {
 
     return (
         <BrowserRouter>
-            <Header />
             <Main>
                 <Routes>
-                    <Route exact path="/" element={<MainPage />} />
+                    <Route
+                        exact
+                        path="/"
+                        element={
+                            <div>
+                                <Header />
+                                <MainPage />
+                                <Footer />
+                            </div>
+                        }
+                    />
                     <Route
                         exact
                         path="/auth"
@@ -60,7 +70,7 @@ function App() {
                         path="/chat"
                         element={
                             <ProtectedRoute>
-                                <ChatPage />
+                                <FullChatPage />
                             </ProtectedRoute>
                         }
                     />
@@ -69,14 +79,13 @@ function App() {
                         path="/chat/:groupId"
                         element={
                             <ProtectedRoute>
-                                <ChatPage />
+                                <FullChatPage />
                             </ProtectedRoute>
                         }
                     />
                     <Route exact path="*" element={<Not />} />
                 </Routes>
             </Main>
-            <Footer />
             {data.isAuthenticated && <ChatDock />}
         </BrowserRouter>
     );

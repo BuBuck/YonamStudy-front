@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/auth/AuthContext";
 
 function ProtectedRoute({ children }) {
     const { isAuthenticated, isLoading } = useContext(AuthContext);
+
+    const navigate = useNavigate();
 
     if (isLoading) {
         return <div>로딩 중...</div>;
@@ -11,7 +13,7 @@ function ProtectedRoute({ children }) {
 
     if (!isAuthenticated) {
         alert("로그인이 필요합니다.");
-        return <Navigate to="/auth" replace />;
+        return navigate("/auth");
     }
 
     return children;

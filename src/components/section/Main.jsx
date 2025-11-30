@@ -3,7 +3,7 @@ import React from "react";
 function Main(props) {
     return (
         <>
-            <main id="main" role="main">
+            <main id="main" role="main" style={{ width: "vw", height: "vh" }}>
                 {props.children}
             </main>
         </>

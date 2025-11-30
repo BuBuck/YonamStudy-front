@@ -1,0 +1,20 @@
+.chatDock_Header {
+    padding: 8px 8px 8px 12px;
+    height: 40px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatDock_button {
+    margin-left: 12px;
+    display: flex;
+    flex-direction: row;
+}
+
+.icon {
+    width: 36px;
+    height: 36px;
+}

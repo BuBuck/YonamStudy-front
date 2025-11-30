@@ -3,9 +3,9 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import socket from "../../server";
 
-import ChatHeader from "./ChatHeader";
+import ChatDockHeader from "./ChatDockHeader";
 import ChatList from "./ChatList";
-import ChatPage from "../../pages/ChatPage";
+import Chat from "./Chat";
 
 import { onGroupCreated } from "../../utils/groupSignal";
 
@@ -80,15 +80,17 @@ function ChatDock() {
             socket.emit("joinGroup", newGroup._id);
 
             setUnreadMap((prev) => ({ ...prev, [newGroup._id]: 0 }));
+
             setLastMessageMap((prev) => ({
                 ...prev,
                 [newGroup._id]: { message: "새로운 대화방이 생성되었습니다.", time: new Date() },
             }));
         });
 
+        fetchNotification();
+        fetchLastMessages();
+
         return () => {
-            fetchNotification();
-            fetchLastMessages();
             removeListener();
         };
     }, []);
@@ -145,7 +147,7 @@ function ChatDock() {
         setIsOpen(!isOpen);
     };
 
-    if (currentPath === "/chat") {
+    if (currentPath.toString().length >= "/chat".length) {
         return null;
     }
 
@@ -174,7 +176,7 @@ function ChatDock() {
     if (isOpen) {
         return (
             <div className="chatDockOpened" role="button" tabIndex="0">
-                <ChatHeader
+                <ChatDockHeader
                     onDockClick={openDock}
                     onSelectGroup={(back) => {
                         setSelectGroup(back);
@@ -200,7 +202,7 @@ function ChatDock() {
                         lastMessageMap={lastMessageMap}
                     />
                 )}
-                {selectGroup && <ChatPage selectGroup={selectGroup} user={user} />}
+                {selectGroup && <Chat selectGroup={selectGroup} user={user} />}
             </div>
         );
     }

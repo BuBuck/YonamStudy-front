@@ -1,27 +1,24 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-// import { useParams } from "react-router-dom";
 import axios from "axios";
-import socket from "../server";
+import socket from "../../server";
 
-import MessageContainer from "../components/chat/MessageContainer";
-import InputField from "../components/chat/InputField";
+import MessageContainer from "./MessageContainer";
+import InputField from "./InputField";
 
-function ChatPage({ selectGroup, user }) {
+function ChatPage({ selectGroup = {}, user }) {
     const [messageList, setMessageList] = useState([]);
     const [message, setMessage] = useState("");
 
     const [isReady, setIsReady] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // const { groupId } = useParams();
-
     useEffect(() => {
-        if (!selectGroup._id) return;
+        if (!selectGroup?._id) return;
 
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${    
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${
                         selectGroup._id
                     }/messages`
                 );
@@ -48,10 +45,12 @@ function ChatPage({ selectGroup, user }) {
         setIsReady(false);
 
         return () => socket.off("receivedMessage");
-    }, [selectGroup._id]);
+    }, [selectGroup]);
 
     useLayoutEffect(() => {
-        messagesEndRef.current.scrollIntoView({ behavior: "instant" });
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "instant" });
+        }
         window.requestAnimationFrame(() => {
             setIsReady(true);
         });
@@ -59,6 +58,9 @@ function ChatPage({ selectGroup, user }) {
 
     const sendMessage = (event) => {
         event.preventDefault();
+
+        if (!selectGroup?._id) return;
+
         socket.emit("sendMessage", message, user.userId, selectGroup._id, (res) => {
             if (!res.ok) {
                 console.log("Error Message", res.error);
@@ -68,12 +70,14 @@ function ChatPage({ selectGroup, user }) {
     };
 
     return (
-        <div>
+        <div
+            style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}
+        >
             {selectGroup._id ? (
-                <div>
+                <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
                     <div
                         style={{
-                            height: "386px",
+                            flex: 1,
                             overflowY: "auto",
                             opacity: isReady ? 1 : 0,
                             display: "flex",
@@ -85,17 +89,18 @@ function ChatPage({ selectGroup, user }) {
                         )}
                         <div ref={messagesEndRef} />
                     </div>
+
                     {isReady && (
-                        <InputField
-                            message={message}
-                            setMessage={setMessage}
-                            sendMessage={sendMessage}
-                        />
+                        <div style={{ flexShrink: 0 }}>
+                            <InputField
+                                message={message}
+                                setMessage={setMessage}
+                                sendMessage={sendMessage}
+                            />
+                        </div>
                     )}
                 </div>
-            ) : (
-                <div>디폴트 채팅 화면임</div>
-            )}
+            ) : null}
         </div>
     );
 }
