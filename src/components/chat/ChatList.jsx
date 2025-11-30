@@ -6,33 +6,26 @@ const formatTime = (isoString) => {
     const date = new Date(isoString);
     const now = new Date();
 
-    // 시간 차이 계산 (밀리초 -> 초 단위로 변환)
     const diffSeconds = (now.getTime() - date.getTime()) / 1000;
 
-    // 1. 1분 미만일 때
     if (diffSeconds < 60) {
         return "1분";
     }
 
-    // 2. 1시간 미만일 때 (분 단위 표시)
     const diffMinutes = Math.floor(diffSeconds / 60);
     if (diffMinutes < 60) {
         return `${diffMinutes}분`;
     }
 
-    // 3. 하루(24시간) 미만일 때 (시간 단위 표시)
     const diffHours = Math.floor(diffSeconds / 3600);
     if (diffHours < 24) {
         return `${diffHours}시간`;
     }
 
-    // 4. 하루(24시간) 이상 지났을 때 (날짜 표시)
-    // 48시간(2일) 미만이면 "어제"라고 띄우고 싶다면 조건 추가 가능
     if (diffHours < 48) {
         return "어제";
     }
 
-    // 그 외는 날짜로 표시 (11-25)
     return date.toLocaleDateString("ko-KR", {
         month: "2-digit",
         day: "2-digit",
@@ -60,11 +53,9 @@ function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
                                             <div style={{ display: "flex", flexDirection: "row" }}>
                                                 <img
                                                     className="group-img"
-                                                    src={
+                                                    src={`${import.meta.env.VITE_BACKEND_URL}${
                                                         group.groupImage
-                                                            ? group.groupImage
-                                                            : "/profile.png"
-                                                    }
+                                                    }`}
                                                     alt="그룹 이미지"
                                                 />
                                                 <div className="group-title">

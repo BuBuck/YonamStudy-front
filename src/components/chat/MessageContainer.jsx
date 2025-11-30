@@ -8,9 +8,9 @@ const MessageContainer = ({ messageList, user }) => {
             {messageList.map((message, index) => {
                 return (
                     <div key={message._id} className="message-container">
-                        {message.sender.name === "system" ? (
-                            <div className="system-message-container">
-                                <p className="system-message">{message.message}</p>
+                        {message.sender.name === "server" ? (
+                            <div className="server-message-container">
+                                <p className="server-message">{message.message}</p>
                             </div>
                         ) : message.sender.name === user.name ? (
                             <div className="my-message-container">
@@ -33,7 +33,7 @@ const MessageContainer = ({ messageList, user }) => {
                                                 ? { visibility: "visible" }
                                                 : messageList[index - 1].sender.name ===
                                                   user.name) ||
-                                            messageList[index - 1].sender.name === "system"
+                                            messageList[index - 1].sender.name === "server"
                                                 ? { visibility: "visible" }
                                                 : { visibility: "hidden" }
                                         }

@@ -15,7 +15,7 @@ function Comment({ groupId }) {
 
         const fetchHistory = async () => {
             const res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/comments`
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`
             );
             setComments(res.data);
         };
@@ -27,7 +27,7 @@ function Comment({ groupId }) {
     const handleAddComment = async (content) => {
         try {
             const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/comments`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`,
                 { content: content, userId: user.userId }
             );
             setComments([...comments, res.data]);
@@ -62,7 +62,7 @@ function Comment({ groupId }) {
     const handleDeleteComment = async (commentId) => {
         try {
             const res = await axios.delete(
-                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/${commentId}`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
                 {
                     params: {
                         userId: user.userId,

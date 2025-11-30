@@ -4,7 +4,7 @@ import axios from "axios";
 import socket from "../../server";
 
 import ChatHeader from "./ChatHeader";
-import ChatListPage from "./ChatList";
+import ChatList from "./ChatList";
 import ChatPage from "../../pages/ChatPage";
 
 import { IoPaperPlaneOutline } from "react-icons/io5";
@@ -42,7 +42,7 @@ function ChatDock() {
         const fetchNotification = async () => {
             try {
                 const { data } = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/chat/notification`,
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/notification`,
                     {
                         params: {
                             userId: user.userId,
@@ -64,7 +64,7 @@ function ChatDock() {
         const fetchLastMessages = async () => {
             try {
                 const { data } = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/chat/lastMessages`,
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/lastMessages`,
                     {
                         params: {
                             userId: user.userId || user._id,
@@ -86,7 +86,16 @@ function ChatDock() {
 
     useEffect(() => {
         const handleReceivedMessage = (newMessage) => {
+            setLastMessageMap((prev) => ({
+                ...prev,
+                [newMessage.group]: {
+                    message: newMessage.message,
+                    time: newMessage.createdAt || new Date().toISOString(),
+                },
+            }));
+
             if (newMessage.sender._id === user._id) return;
+
             if (selectGroup && selectGroup._id === newMessage.group) return;
 
             setNotification((prevState) => prevState + 1);
@@ -94,14 +103,6 @@ function ChatDock() {
             setUnreadMap((prevState) => ({
                 ...prevState,
                 [newMessage.group]: (prevState[newMessage.group] || 0) + 1,
-            }));
-
-            setLastMessageMap((prev) => ({
-                ...prev,
-                [newMessage.group]: {
-                    message: newMessage.message,
-                    time: newMessage.createdAt || new Date().toISOString(),
-                },
             }));
         };
 
@@ -132,11 +133,11 @@ function ChatDock() {
         return null;
     }
 
-    const enterGroup = async (group) => {
+    const handleEnterGroup = async (group) => {
         setSelectGroup(group);
 
         try {
-            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/chat/read`, {
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/read`, {
                 groupId: group._id,
                 userId: user.userId,
             });
@@ -175,8 +176,8 @@ function ChatDock() {
                     }}
                 />
                 {!selectGroup && (
-                    <ChatListPage
-                        onSelectGroup={enterGroup}
+                    <ChatList
+                        onSelectGroup={handleEnterGroup}
                         groups={groups}
                         user={user}
                         unreadMap={unreadMap}

@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/auth/AuthContext";
 
 // 백엔드 서버 주소 (Express 서버를 5001번 포트에서 실행 중이라고 가정)
 const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
@@ -120,7 +120,6 @@ function AuthTestPage() {
     };
 
     // --- [수정] 1. (1단계) 인증 코드 전송 ---
-    // (기존 handleResendCode의 역할을 대체)
     const handleSendCode = async () => {
         clearMessage();
         if (!formData.email) {
@@ -128,8 +127,8 @@ function AuthTestPage() {
             return;
         }
         try {
-            // [수정] /resend-code API를 사용하여 코드 전송
-            const res = await axios.post(`${API_BASE_URL}/resend-code`, {
+            // [수정] /send-verification API를 사용하여 코드 전송
+            const res = await axios.post(`${API_BASE_URL}/send-verification`, {
                 email: formData.email,
             });
             setMessage({ type: "success", text: res.data.message });
@@ -144,7 +143,6 @@ function AuthTestPage() {
     };
 
     // --- [수정] 2. (2단계) 인증 코드 확인 ---
-    // (기존 handleVerifyCode의 역할을 대체)
     const handleCheckCode = async () => {
         clearMessage();
         try {
