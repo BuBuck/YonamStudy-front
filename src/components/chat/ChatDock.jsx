@@ -7,6 +7,8 @@ import ChatHeader from "./ChatHeader";
 import ChatList from "./ChatList";
 import ChatPage from "../../pages/ChatPage";
 
+import { onGroupCreated } from "../../utils/groupSignal";
+
 import { IoPaperPlaneOutline } from "react-icons/io5";
 
 import "../../style/chat/ChatDock.css";
@@ -26,18 +28,14 @@ function ChatDock() {
     const user = JSON.parse(localStorage.getItem("user"));
 
     useEffect(() => {
-        if (user && user.group && user.group.length > 0) {
+        if (!user) return;
+
+        if (user.group && user.group.length > 0) {
             socket.emit("joinGroups", user.group, (res) => {
-                if (res.ok) {
-                    console.log("모든 그룹 소켓 입장 완료");
-                }
+                if (res.ok) console.log("모든 그룹 소켓 입장 완료");
             });
         }
-
         socket.emit("groups");
-        socket.on("groups", (res) => {
-            setGroups(res);
-        });
 
         const fetchNotification = async () => {
             try {
@@ -45,21 +43,17 @@ function ChatDock() {
                     `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/notification`,
                     {
                         params: {
-                            userId: user.userId,
+                            userId: user.userId || user._id,
                             group: user.group.join(","),
                         },
                     }
                 );
                 setNotification(data.total);
-
-                if (data.groupCounts) {
-                    setUnreadMap(data.groupCounts);
-                }
+                if (data.groupCounts) setUnreadMap(data.groupCounts);
             } catch (error) {
-                console.error(error);
+                console.error("알림 로드 실패:", error);
             }
         };
-        fetchNotification();
 
         const fetchLastMessages = async () => {
             try {
@@ -74,17 +68,36 @@ function ChatDock() {
                 );
                 setLastMessageMap(data);
             } catch (error) {
-                console.error(error);
+                console.error("메시지 로드 실패:", error);
             }
         };
-        fetchLastMessages();
+
+        const removeListener = onGroupCreated((newGroup) => {
+            console.log("새 그룹 신호 받음:", newGroup);
+
+            setGroups((prev) => [...prev, newGroup]);
+
+            socket.emit("joinGroup", newGroup._id);
+
+            setUnreadMap((prev) => ({ ...prev, [newGroup._id]: 0 }));
+            setLastMessageMap((prev) => ({
+                ...prev,
+                [newGroup._id]: { message: "새로운 대화방이 생성되었습니다.", time: new Date() },
+            }));
+        });
 
         return () => {
-            socket.off("groups");
+            fetchNotification();
+            fetchLastMessages();
+            removeListener();
         };
     }, []);
 
     useEffect(() => {
+        const handleGroups = (res) => {
+            setGroups(res);
+        };
+
         const handleReceivedMessage = (newMessage) => {
             setLastMessageMap((prev) => ({
                 ...prev,
@@ -95,22 +108,25 @@ function ChatDock() {
             }));
 
             if (newMessage.sender._id === user._id) return;
-
             if (selectGroup && selectGroup._id === newMessage.group) return;
 
-            setNotification((prevState) => prevState + 1);
-
-            setUnreadMap((prevState) => ({
-                ...prevState,
-                [newMessage.group]: (prevState[newMessage.group] || 0) + 1,
+            setNotification((prev) => prev + 1);
+            setUnreadMap((prev) => ({
+                ...prev,
+                [newMessage.group]: (prev[newMessage.group] || 0) + 1,
             }));
         };
 
+        socket.on("groups", handleGroups);
         socket.on("receivedMessage", handleReceivedMessage);
 
-        return () => socket.off("receivedMessage", handleReceivedMessage);
+        return () => {
+            socket.off("groups", handleGroups);
+            socket.off("receivedMessage", handleReceivedMessage);
+        };
     }, [selectGroup]);
 
+    // ESC 단축키 관련
     useEffect(() => {
         if (!isOpen) return;
 
