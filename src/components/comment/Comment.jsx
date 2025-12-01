@@ -4,11 +4,9 @@ import axios from "axios";
 import CommentInput from "./CommentInput"; // 댓글 입력 컴포넌트
 import CommentList from "./CommentList"; // 댓글 목록 컴포넌트
 
-function Comment({ groupId }) {
+function Comment({ groupId, user }) {
     // 댓글들을 저장하는 상태 (배열)
     const [comments, setComments] = useState([]);
-
-    const user = JSON.parse(localStorage.getItem("user"));
 
     useEffect(() => {
         if (!groupId) return;
@@ -42,7 +40,7 @@ function Comment({ groupId }) {
     const handleEditComment = async (commentId, content) => {
         try {
             const res = await axios.put(
-                `${import.meta.env.VITE_BACKEND_URL}/api/group/${groupId}/${commentId}`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
                 { content: content },
                 {
                     params: {
@@ -83,12 +81,13 @@ function Comment({ groupId }) {
     return (
         <div>
             {/* 댓글 입력창 */}
-            <CommentInput onAddComment={handleAddComment} />
+            {user && <CommentInput onAddComment={handleAddComment} />}
             {/* 댓글 목록 (수정/삭제 기능 포함) */}
             <CommentList
+                user={user}
                 comments={comments}
-                onEdit={handleEditComment}
-                onDelete={handleDeleteComment}
+                onEditComment={handleEditComment}
+                onDeleteComment={handleDeleteComment}
             />
         </div>
     );
