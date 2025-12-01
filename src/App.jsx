@@ -89,7 +89,7 @@ function App() {
                     <Route exact path="*" element={<Not />} />
                 </Routes>
             </Main>
-            {!isChatPage && <ChatDock />}
+            {data.isAuthenticated && !isChatPage && <ChatDock />}
         </>
     );
 }
