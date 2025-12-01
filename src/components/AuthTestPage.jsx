@@ -225,7 +225,7 @@ function AuthTestPage() {
             });
 
             setIsAuthenticated(true);
-            navigate("/");
+            navigate(-1);
             alert("로그인 성공!");
         } catch (err) {
             // (이메일 미인증 에러 401 포함)

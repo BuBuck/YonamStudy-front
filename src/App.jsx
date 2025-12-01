@@ -46,7 +46,7 @@ function App() {
                         element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
                     />
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
-                    <Route exact path="/group/:groupId" element={<GroupPage />} />
+                    <Route exact path="/study-groups/:groupId" element={<GroupPage />} />
                     <Route
                         exact
                         path="/createGroup"

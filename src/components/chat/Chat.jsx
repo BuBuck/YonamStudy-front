@@ -20,7 +20,12 @@ function ChatPage({ selectGroup = {}, user }) {
                 const res = await axios.get(
                     `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${
                         selectGroup._id
-                    }/messages`
+                    }/messages`,
+                    {
+                        headers: {
+                            userId: user.userId,
+                        },
+                    }
                 );
                 setMessageList(res.data);
             } catch (error) {
