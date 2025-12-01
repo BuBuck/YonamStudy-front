@@ -1,37 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const DEFAULT_IMAGE = "/default.png"; // public 폴더에 기본 이미지 파일을 넣어주세요
+const GroupList = () => {
+    const [groups, setGroups] = useState([]);
 
-const GroupList = ({ groups, onSelectGroup }) => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleGetAllGroups = async () => {
+            try {
+                const res = await axios.get(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/`
+                );
+
+                setGroups(res.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        handleGetAllGroups();
+    });
+
+    const onSelectGroup = (group) => {
+        navigate(`/study-groups/${group._id}`);
+    };
+
     return (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul style={{ listStyle: "none", padding: 0, display: "grid" }}>
             {groups.map((group) => {
-                const imageSrc = group.imageUrl || DEFAULT_IMAGE;
-
                 return (
                     <li
-                        key={group.id}
+                        key={group._id}
                         onClick={() => onSelectGroup(group)}
                         style={{
                             cursor: "pointer",
                             marginBottom: "10px",
-                            display: "flex",
-                            alignItems: "center",
+                            display: "inline-flex",
+                            flexDirection: "column",
                         }}
                     >
                         <img
-                            src={`${import.meta.env.VITE_BACKEND_URL}${imageSrc}`}
-                            alt={`${group.name} 썸네일`}
+                            src={`${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`}
+                            alt={`${group.group} 썸네일`}
                             style={{
                                 width: "50px",
                                 height: "50px",
                                 objectFit: "cover",
-                                borderRadius: "4px",
-                                marginRight: "8px",
+                                borderRadius: "50%",
                                 border: "1px solid #ccc",
                             }}
                         />
-                        <span>{group.name}</span>
+                        <span>{group.group}</span>
                     </li>
                 );
             })}

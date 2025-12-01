@@ -47,7 +47,7 @@ function CreateGroupPage() {
         });
     };
 
-    const handleUpload = async (group) => {
+    const handleUploadImage = async (group) => {
         const _formData = new FormData();
         _formData.append("image", file);
         _formData.append("groupId", group._id);
@@ -81,7 +81,7 @@ function CreateGroupPage() {
                 userId: user.userId,
             });
 
-            await handleUpload(res.data);
+            await handleUploadImage(res.data);
 
             setFormData(defaultFormData);
 

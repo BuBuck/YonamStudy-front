@@ -1,10 +1,13 @@
-import React from 'react';
+import React from "react";
+import GroupList from "../components/group/GroupList";
 
 function MainPage() {
-
-	return (
-		<div>MainPage</div>
-	);
+    return (
+        <div>
+            MainPage
+            <GroupList />
+        </div>
+    );
 }
 
 export default MainPage;

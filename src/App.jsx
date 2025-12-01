@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Routes, Route, Navigate, BrowserRouter, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Header from "./components/section/Header";
 import Main from "./components/section/Main";
@@ -49,7 +49,17 @@ function App() {
                         element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
                     />
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
-                    <Route exact path="/study-groups/:groupId" element={<GroupPage />} />
+
+                    <Route
+                        exact
+                        path="/study-groups/:groupId"
+                        element={
+                            <div>
+                                <Header />
+                                <GroupPage />
+                            </div>
+                        }
+                    />
                     <Route
                         exact
                         path="/createGroup"

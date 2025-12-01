@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import Comment from "../components/comment/Comment";
+import GroupInfo from "../components/group/GroupInfo";
 
 function GroupPage() {
     const { groupId } = useParams();
@@ -15,12 +16,10 @@ function GroupPage() {
         const handleGetGroupData = async () => {
             try {
                 const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`,
-                    { userId: user.userId || user._id }
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`
                 );
 
                 setGroup(res.data);
-                console.log(res.data);
             } catch (error) {
                 console.error(error);
             }
@@ -31,13 +30,11 @@ function GroupPage() {
 
     return (
         <div>
-            <div>
-                <div>{group?.group}</div>
-                <button>그룹 제거</button>
-            </div>
-
+            <GroupInfo group={group} user={user} />
             <hr />
-            <Comment groupId={groupId} />
+            <div>
+                <Comment groupId={groupId} user={user} />
+            </div>
         </div>
     );
 }
