@@ -114,7 +114,7 @@ function FullChatPage() {
             console.error(e);
         }
 
-        navigate(`/chat/${group._id}`);
+        navigate(`/chat/${group._id}`, { replace: true });
     };
 
     return (
@@ -137,6 +137,7 @@ function FullChatPage() {
                         user={user}
                         unreadMap={unreadMap}
                         lastMessageMap={lastMessageMap}
+                        currentGroupId={groupId}
                     />
                 </div>
             </div>

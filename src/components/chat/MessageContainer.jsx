@@ -5,7 +5,6 @@ import "../../style/chat/MessageContainer.css";
 const MessageContainer = ({ messageList, user }) => {
     return (
         <div>
-            {console.log(messageList)}
             {messageList.map((message, index) => {
                 return (
                     <div key={message._id} className="message-container">

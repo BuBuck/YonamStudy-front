@@ -93,6 +93,7 @@ function CreateGroupPage() {
             alert("스터디 그룹이 생성되었습니다.");
             navigate("/");
         } catch (error) {
+            if (error.status === 409) return alert("이미 존재하는 스터디그룹 이름입니다.");
             console.error(error);
         }
     };

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import socket from "../../server";
 
@@ -21,9 +20,6 @@ function ChatDock() {
     const [notification, setNotification] = useState(0);
     const [unreadMap, setUnreadMap] = useState({});
     const [lastMessageMap, setLastMessageMap] = useState({});
-
-    const location = useLocation();
-    const currentPath = location.pathname;
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -147,10 +143,6 @@ function ChatDock() {
         setIsOpen(!isOpen);
     };
 
-    if (currentPath.toString().length >= "/chat".length) {
-        return null;
-    }
-
     const handleEnterGroup = async (group) => {
         setSelectGroup(group);
 
@@ -200,6 +192,7 @@ function ChatDock() {
                         user={user}
                         unreadMap={unreadMap}
                         lastMessageMap={lastMessageMap}
+                        currentGroupId={selectGroup?._id}
                     />
                 )}
                 {selectGroup && <Chat selectGroup={selectGroup} user={user} />}

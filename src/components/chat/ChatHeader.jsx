@@ -9,7 +9,7 @@ function ChatHeader({ selectGroup }) {
     const navigate = useNavigate();
 
     const leaveChat = () => {
-        navigate(-1);
+        navigate(-1, { replace: true });
     };
 
     return (

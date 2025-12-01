@@ -1,16 +1,19 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import socket from "../../server";
 
 import MessageContainer from "./MessageContainer";
 import InputField from "./InputField";
 
-function ChatPage({ selectGroup = {}, user }) {
+function Chat({ selectGroup = {}, user }) {
     const [messageList, setMessageList] = useState([]);
     const [message, setMessage] = useState("");
 
     const [isReady, setIsReady] = useState(false);
     const messagesEndRef = useRef(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!selectGroup?._id) return;
@@ -27,8 +30,11 @@ function ChatPage({ selectGroup = {}, user }) {
                         },
                     }
                 );
+
                 setMessageList(res.data);
             } catch (error) {
+                if (error.status === 403) return navigate("/404NF");
+
                 console.error("채팅 내역 로드 실패", error);
             }
         };
@@ -50,7 +56,7 @@ function ChatPage({ selectGroup = {}, user }) {
         setIsReady(false);
 
         return () => socket.off("receivedMessage");
-    }, [selectGroup]);
+    }, [selectGroup._id]);
 
     useLayoutEffect(() => {
         if (messagesEndRef.current) {
@@ -110,4 +116,4 @@ function ChatPage({ selectGroup = {}, user }) {
     );
 }
 
-export default ChatPage;
+export default Chat;

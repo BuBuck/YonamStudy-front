@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
 import { AuthProvider } from "./contexts/auth/AuthProvider.jsx";
 
@@ -6,6 +7,8 @@ import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
     <AuthProvider>
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </AuthProvider>
 );

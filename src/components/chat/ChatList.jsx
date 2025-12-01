@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "../../style/chat/ChatList.css";
 
 const formatTime = (isoString) => {
@@ -33,14 +32,14 @@ const formatTime = (isoString) => {
     });
 };
 
-function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
-    const [selectGroup, setSelectGroup] = useState(null);
-
+function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap, currentGroupId }) {
     return (
         <div className="chatList-body">
             {groups.length > 0
                 ? groups.map((group) => {
                       const lastInfo = lastMessageMap[group._id] || {};
+
+                      const isSelected = currentGroupId === group._id;
 
                       return user.group.length > 0
                           ? user.group.map(
@@ -53,9 +52,16 @@ function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap }) {
                                             key={group._id}
                                             onClick={() => {
                                                 onSelectGroup(group);
-                                                setSelectGroup(group);
                                             }}
-                                            style={selectGroup && { backgroundColor: "#222" }}
+                                            style={
+                                                isSelected
+                                                    ? {
+                                                          backgroundColor: "#222",
+                                                          pointerEvents: "none",
+                                                          cursor: "default",
+                                                      }
+                                                    : {}
+                                            }
                                         >
                                             <div style={{ display: "flex", flexDirection: "row" }}>
                                                 <img
