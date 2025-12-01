@@ -42,7 +42,7 @@ function CommentList({ user, comments, onEditComment, onDeleteComment }) {
                                         {`${comment.commenter.major} ${comment.commenter.name}`}
                                     </div>
                                 </div>
-                                {user?.userId === comment.commenter?._id || comment.commenter ? (
+                                {user?.userId === comment.commenter?._id ? (
                                     <div>
                                         <button
                                             onClick={() => {
