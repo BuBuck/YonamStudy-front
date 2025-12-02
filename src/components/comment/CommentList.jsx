@@ -60,7 +60,6 @@ function CommentList({ user, comments, onEditComment, onDeleteComment }) {
                             </div>
                         </div>
                     )}
-                    <hr />
                 </li>
             ))}
         </ul>
