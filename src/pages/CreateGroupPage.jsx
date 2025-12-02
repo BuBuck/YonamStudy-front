@@ -80,12 +80,12 @@ function CreateGroupPage() {
                 userId: user.userId,
             });
 
-            await handleUploadImage(res.data);
+            await handleUploadImage(res.data.group);
 
-            user.group = [...user.group, res.data._id];
+            user.group = [...user.group, res.data.group._id];
             setUser(user);
 
-            notifyGroupCreated(res.data);
+            notifyGroupCreated(res.data.group);
 
             alert(res.data.message);
             navigate("/");
