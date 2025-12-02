@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "../../style/group/GroupInfo.css";
@@ -11,11 +12,12 @@ function GroupInfo({ group, user, onUpdateGroup }) {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState("");
 
+    const navigate = useNavigate();
+
     const handleUpdateImage = async (group) => {
         const _formData = new FormData();
         _formData.append("image", file);
         _formData.append("groupId", group._id);
-        _formData.append("groupImage", group.groupImage);
 
         try {
             await axios.put(
@@ -169,7 +171,14 @@ function GroupInfo({ group, user, onUpdateGroup }) {
                                 >
                                     수정
                                 </button>
-                                <button onClick={handleDeleteGroup}>삭제</button>
+                                <button
+                                    onClick={() => {
+                                        handleDeleteGroup();
+                                        navigate(-1);
+                                    }}
+                                >
+                                    삭제
+                                </button>
                             </div>
                         )}
                     </div>
