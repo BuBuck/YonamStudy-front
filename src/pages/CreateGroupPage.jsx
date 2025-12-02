@@ -87,7 +87,7 @@ function CreateGroupPage() {
 
             notifyGroupCreated(res.data);
 
-            alert("스터디 그룹이 생성되었습니다.");
+            alert(res.data.message);
             navigate("/");
         } catch (error) {
             if (error.status === 409) return alert(error.response.data.message);

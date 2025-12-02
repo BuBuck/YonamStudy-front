@@ -73,8 +73,6 @@ function ChatDock() {
         };
 
         const removeListener = onGroupCreated((newGroup) => {
-            console.log("새 그룹 신호 받음:", newGroup);
-
             setGroups((prev) => [...prev, newGroup]);
 
             socket.emit("joinGroup", newGroup._id);

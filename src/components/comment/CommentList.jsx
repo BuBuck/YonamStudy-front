@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 
-function CommentList({ user, comments, onEditComment, onDeleteComment }) {
+import dayjs from "dayjs";
+import "dayjs/locale/ko";
+
+dayjs.locale("ko");
+
+function CommentList({ user, group, comments, onEditComment, onDeleteComment }) {
     const [isEditing, setIsEditing] = useState(false);
     const [newContent, setNewContent] = useState("");
 
@@ -39,7 +44,24 @@ function CommentList({ user, comments, onEditComment, onDeleteComment }) {
                                 <div>
                                     {comment.content}
                                     <div>
-                                        {`${comment.commenter.major} ${comment.commenter.name}`}
+                                        {`${comment.commenter.major} ${
+                                            user?.userId === comment.commenter?._id ||
+                                            user?.userId === group.groupLeader
+                                                ? comment.commenter.name
+                                                : comment.commenter.name[0] +
+                                                  "*".repeat(comment.commenter.name.length - 1)
+                                        }`}
+                                    </div>
+                                    <div style={{ color: "lightgrey" }}>
+                                        {`${
+                                            comment.createdAt === comment.updatedAt
+                                                ? dayjs(comment.createdAt).format(
+                                                      "YYYY. MM. DD. HH:mm"
+                                                  )
+                                                : dayjs(comment.updatedAt).format(
+                                                      "YYYY. MM. DD. HH:mm"
+                                                  ) + " (수정됨)"
+                                        }`}
                                     </div>
                                 </div>
                                 {user?.userId === comment.commenter?._id ? (

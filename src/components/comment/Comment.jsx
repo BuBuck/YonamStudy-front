@@ -4,7 +4,7 @@ import axios from "axios";
 import CommentInput from "./CommentInput"; // 댓글 입력 컴포넌트
 import CommentList from "./CommentList"; // 댓글 목록 컴포넌트
 
-function Comment({ groupId, user }) {
+function Comment({ groupId, group, user }) {
     // 댓글들을 저장하는 상태 (배열)
     const [comments, setComments] = useState([]);
 
@@ -85,6 +85,7 @@ function Comment({ groupId, user }) {
             {/* 댓글 목록 (수정/삭제 기능 포함) */}
             <CommentList
                 user={user}
+                group={group}
                 comments={comments}
                 onEditComment={handleEditComment}
                 onDeleteComment={handleDeleteComment}
