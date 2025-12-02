@@ -1,22 +1,21 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 
 import "../../style/group/GroupInfo.css";
 
 function GroupInfo({ group, user }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [newGroupName, setNewGroupName] = useState(group.group || "");
+    const [formData, setFormData] = useState({});
 
+    const fileInputRef = useRef(null);
     const [file, setFile] = useState(null);
-    const [preview, setPreview] = useState(
-        `${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`
-    );
+    const [preview, setPreview] = useState("");
 
     const handleUpdateImage = async (group) => {
         const _formData = new FormData();
         _formData.append("image", file);
         _formData.append("groupId", group._id);
-        _formData.append("groupName", group.group);
+        _formData.append("groupImage", group.groupImage);
 
         try {
             await axios.put(
@@ -44,16 +43,36 @@ function GroupInfo({ group, user }) {
         setPreview(previewUrl);
     };
 
-    const handleUpdateGroup = async () => {
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleUpdateGroup = async (e) => {
+        e.preventDefault();
         try {
             const res = await axios.put(
-                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${group._id}`
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${group._id}`,
+                {
+                    groupName: formData.group,
+                    description: formData.description,
+                    groupImage: formData.groupImage,
+                    userId: user.userId,
+                }
             );
 
-            await handleUpdateImage(res.data);
+            await handleUpdateImage(res.data.updatedGroup);
 
-            if (res.data) return alert(res.data.message);
+            if (res.data) {
+                setIsEditing(false);
+                return alert(res.data.message);
+            }
         } catch (error) {
+            if (error.status === 409) return alert(error.response.data.message);
             console.error(error);
         }
     };
@@ -75,64 +94,89 @@ function GroupInfo({ group, user }) {
     return (
         <div>
             {isEditing ? (
-                <div className="group-info">
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                        <img
-                            className="group-image"
-                            src={`${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`}
-                        />
-                        <div className="group-name-input">
+                <form onSubmit={handleUpdateGroup}>
+                    <div className="group-info">
+                        <div style={{ display: "flex", flexDirection: "row" }}>
                             <input
-                                value={newGroupName}
-                                onChange={(e) => setNewGroupName(e.target.value)}
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div className="group-description">{group.description}</div>
-                    <div>
-                        <button
-                            onClick={() => {
-                                setIsEditing(false);
-                                handleUpdateGroup();
-                            }}
-                        >
-                            저장
-                        </button>
-                        <button
-                            onClick={() => {
-                                setIsEditing(false);
-                                setNewGroupName(group.group);
-                            }}
-                        >
-                            취소
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <div className="group-info">
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                        <img
-                            className="group-image"
-                            src={`${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`}
-                        />
-                        <h1 className="group-name">{group.group}</h1>
-                    </div>
-                    <div className="group-description">{group.description}</div>
-                    {user && user.userId === group.groupLeader && (
-                        <div>
-                            <button
-                                onClick={() => {
-                                    setIsEditing(true);
-                                    setNewGroupName(group.group);
+                                ref={fileInputRef}
+                                name="groupImage"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{
+                                    display: "none",
                                 }}
-                            >
-                                수정
-                            </button>
-                            <button onClick={handleDeleteGroup}>삭제</button>
+                            />
+                            <img
+                                className="group-image-preview"
+                                alt="스터디 그룹 이미지"
+                                src={preview}
+                                onClick={() => fileInputRef.current.click()}
+                            />
+                            <div className="group-name-input">
+                                <input
+                                    name="group"
+                                    value={formData.group}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
                         </div>
-                    )}
-                </div>
+                        <div>
+                            <button type="submit">저장</button>
+                            <button type="button" onClick={() => setIsEditing(false)}>
+                                취소
+                            </button>
+                        </div>
+                    </div>
+                    <div style={{ margin: "10px 30px" }}>
+                        <div style={{ marginBottom: "8px", fontWeight: 600 }}>그룹 설명</div>
+                        <textarea
+                            className="group-description"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                        />
+                    </div>
+                </form>
+            ) : (
+                <>
+                    <div className="group-info">
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                            <img
+                                className="group-image"
+                                alt="스터디 그룹 이미지"
+                                src={`${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`}
+                            />
+                            <h1 className="group-name">{group.group}</h1>
+                        </div>
+
+                        {user && user.userId === group.groupLeader && (
+                            <div>
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(true);
+                                        setPreview(
+                                            `${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`
+                                        );
+                                        setFormData({
+                                            group: group.group,
+                                            description: group.description,
+                                            groupImage: group.groupImage,
+                                        });
+                                    }}
+                                >
+                                    수정
+                                </button>
+                                <button onClick={handleDeleteGroup}>삭제</button>
+                            </div>
+                        )}
+                    </div>
+                    <div style={{ margin: "10px 30px" }}>
+                        <div style={{ marginBottom: "8px", fontWeight: 600 }}>그룹 설명</div>
+                        <div className="group-description">{group.description}</div>
+                    </div>
+                </>
             )}
         </div>
     );
