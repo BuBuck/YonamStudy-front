@@ -11,6 +11,7 @@ import { onGroupCreated } from "../../utils/groupSignal";
 import { IoPaperPlaneOutline } from "react-icons/io5";
 
 import "../../style/chat/ChatDock.css";
+import { useLocation } from "react-router-dom";
 
 function ChatDock() {
     const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +21,9 @@ function ChatDock() {
     const [notification, setNotification] = useState(0);
     const [unreadMap, setUnreadMap] = useState({});
     const [lastMessageMap, setLastMessageMap] = useState({});
+
+    const location = useLocation();
+    const isChatPage = location.pathname.startsWith("/chat");
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -164,6 +168,8 @@ function ChatDock() {
             console.error(error);
         }
     };
+
+    if (isChatPage) return null;
 
     if (isOpen) {
         return (

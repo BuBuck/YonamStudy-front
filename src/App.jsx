@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 
 import Header from "./components/section/Header";
 import Main from "./components/section/Main";
@@ -25,11 +25,8 @@ import "./App.css";
 function App() {
     const data = useContext(AuthContext);
 
-    const location = useLocation();
-    const isChatPage = location.pathname.startsWith("/chat");
-
     return (
-        <>
+        <BrowserRouter>
             <Main>
                 <Routes>
                     <Route
@@ -99,8 +96,8 @@ function App() {
                     <Route exact path="*" element={<Not />} />
                 </Routes>
             </Main>
-            {data.isAuthenticated && !isChatPage && <ChatDock />}
-        </>
+            {data.isAuthenticated && <ChatDock />}
+        </BrowserRouter>
     );
 }
 
