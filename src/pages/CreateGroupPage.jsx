@@ -51,7 +51,6 @@ function CreateGroupPage() {
         const _formData = new FormData();
         _formData.append("image", file);
         _formData.append("groupId", group._id);
-        _formData.append("groupName", group.group);
 
         try {
             await axios.post(
@@ -77,13 +76,11 @@ function CreateGroupPage() {
             const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/`, {
                 groupName: formData.group,
                 description: formData.description,
-                groupImageUrl: formData.groupImage,
+                groupImage: formData.groupImage,
                 userId: user.userId,
             });
 
             await handleUploadImage(res.data);
-
-            setFormData(defaultFormData);
 
             user.group = [...user.group, res.data._id];
             setUser(user);
@@ -93,7 +90,7 @@ function CreateGroupPage() {
             alert("스터디 그룹이 생성되었습니다.");
             navigate("/");
         } catch (error) {
-            if (error.status === 409) return alert("이미 존재하는 스터디그룹 이름입니다.");
+            if (error.status === 409) return alert(error.response.data.message);
             console.error(error);
         }
     };
