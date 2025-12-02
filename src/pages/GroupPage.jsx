@@ -30,7 +30,7 @@ function GroupPage() {
 
     return (
         <div>
-            <GroupInfo group={group} user={user} />
+            <GroupInfo group={group} user={user} onUpdateGroup={(group) => setGroup(group)} />
             <hr />
             <div>
                 <Comment groupId={groupId} user={user} />

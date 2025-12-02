@@ -3,7 +3,7 @@ import axios from "axios";
 
 import "../../style/group/GroupInfo.css";
 
-function GroupInfo({ group, user }) {
+function GroupInfo({ group, user, onUpdateGroup }) {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
@@ -65,12 +65,13 @@ function GroupInfo({ group, user }) {
                 }
             );
 
+            if (!res.data) throw new Error({ status: 404 });
+
             await handleUpdateImage(res.data.updatedGroup);
 
-            if (res.data) {
-                setIsEditing(false);
-                return alert(res.data.message);
-            }
+            setIsEditing(false);
+            onUpdateGroup(res.data.updatedGroup);
+            return alert(res.data.message);
         } catch (error) {
             if (error.status === 409) return alert(error.response.data.message);
             console.error(error);
@@ -109,7 +110,7 @@ function GroupInfo({ group, user }) {
                             />
                             <img
                                 className="group-image-preview"
-                                alt="스터디 그룹 이미지"
+                                alt="스터디그룹 이미지"
                                 src={preview}
                                 onClick={() => fileInputRef.current.click()}
                             />
