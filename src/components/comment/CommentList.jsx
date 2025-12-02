@@ -6,14 +6,22 @@ import "dayjs/locale/ko";
 dayjs.locale("ko");
 
 function CommentList({ user, group, comments, onEditComment, onDeleteComment }) {
-    const [isEditing, setIsEditing] = useState(false);
+    const [editingCommentId, setEditingCommentId] = useState(null);
     const [newContent, setNewContent] = useState("");
+
+    const handleEditClick = (commentId) => {
+        setEditingCommentId(commentId);
+    };
+
+    const handleCancel = () => {
+        setEditingCommentId(null);
+    };
 
     return (
         <ul>
             {comments.map((comment) => (
                 <li key={comment._id}>
-                    {isEditing ? (
+                    {editingCommentId === comment._id ? (
                         // 수정 모드일 때
                         <div style={{ display: "flex", gap: "5px" }}>
                             <input
@@ -23,14 +31,14 @@ function CommentList({ user, group, comments, onEditComment, onDeleteComment }) 
                             <button
                                 onClick={() => {
                                     onEditComment(comment._id, newContent);
-                                    setIsEditing(false);
+                                    handleCancel();
                                 }}
                             >
                                 저장
                             </button>
                             <button
                                 onClick={() => {
-                                    setIsEditing(false);
+                                    handleCancel();
                                     setNewContent(comment.content);
                                 }}
                             >
@@ -68,7 +76,7 @@ function CommentList({ user, group, comments, onEditComment, onDeleteComment }) 
                                     <div>
                                         <button
                                             onClick={() => {
-                                                setIsEditing(true);
+                                                handleEditClick(comment._id);
                                                 setNewContent(comment.content);
                                             }}
                                         >
