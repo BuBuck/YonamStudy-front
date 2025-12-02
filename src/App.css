@@ -8,6 +8,10 @@ body {
     font-family: "Pretendard", Arial;
 }
 
+button {
+    cursor: pointer;
+}
+
 #header {
     width: 100%;
 }
