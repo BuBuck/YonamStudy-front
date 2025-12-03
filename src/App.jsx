@@ -43,8 +43,16 @@ function App() {
                     <Route
                         exact
                         path="/auth"
-                        element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
+                        element={
+                            !data.isAuthenticated ? (
+                                <Navigate to="/auth/login" replace />
+                            ) : (
+                                <Navigate to="/" replace />
+                            )
+                        }
                     />
+                    <Route path="/auth/:category" element={<AuthPage />} />
+
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
 
                     <Route
@@ -93,7 +101,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    <Route exact path="*" element={<Not />} />
+                    <Route exact path="/*" element={<Not />} />
                 </Routes>
             </Main>
             {data.isAuthenticated && <ChatDock />}
