@@ -44,7 +44,7 @@ function ChatDock() {
                     {
                         params: {
                             userId: user.userId || user._id,
-                            group: user.group.join(","),
+                            group: user.group.map((g) => g._id).join(","),
                         },
                     }
                 );
@@ -62,7 +62,7 @@ function ChatDock() {
                     {
                         params: {
                             userId: user.userId || user._id,
-                            group: user.group.join(","),
+                            group: user.group.map((g) => g._id).join(","),
                         },
                     }
                 );

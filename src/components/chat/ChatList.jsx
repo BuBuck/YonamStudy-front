@@ -44,7 +44,7 @@ function ChatList({ onSelectGroup, groups, user, unreadMap, lastMessageMap, curr
                       return user.group.length > 0
                           ? user.group.map(
                                 (userGroup) =>
-                                    userGroup === group._id && (
+                                    userGroup._id === group._id && (
                                         <div
                                             className="chatList-main"
                                             role="button"
