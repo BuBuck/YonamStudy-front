@@ -84,7 +84,7 @@ function CreateGroupPage() {
 
             await handleUploadImage(res.data.group);
 
-            user.group.push(res.data.groups);
+            user.group.push(res.data.group);
             setUser(user);
 
             notifyGroupCreated(res.data.group);
