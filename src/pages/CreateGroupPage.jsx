@@ -29,8 +29,10 @@ function CreateGroupPage() {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
 
-        if (!selectedFile)
+        if (!selectedFile) {
+            setPreview(`${import.meta.env.VITE_BACKEND_URL}${defaultGroupImage}`);
             return setFile(`${import.meta.env.VITE_BACKEND_URL}${defaultGroupImage}`);
+        }
 
         setFile(selectedFile);
 
@@ -82,7 +84,7 @@ function CreateGroupPage() {
 
             await handleUploadImage(res.data.group);
 
-            user.group = [...user.group, res.data.group];
+            user.group.push(res.data.groups);
             setUser(user);
 
             notifyGroupCreated(res.data.group);

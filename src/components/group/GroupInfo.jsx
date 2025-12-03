@@ -3,14 +3,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "../../style/group/GroupInfo.css";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
-function GroupInfo({ group, user, onUpdateGroup }) {
+function GroupInfo({ groupId, group, user, onUpdateGroup }) {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
     const fileInputRef = useRef(null);
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState("");
+
+    const [_, setUser] = useLocalStorage("user", "");
 
     const navigate = useNavigate();
 
@@ -72,6 +75,7 @@ function GroupInfo({ group, user, onUpdateGroup }) {
             await handleUpdateImage(res.data.updatedGroup);
 
             setIsEditing(false);
+            setFormData({});
             onUpdateGroup(res.data.updatedGroup);
             return alert(res.data.message);
         } catch (error) {
@@ -84,10 +88,17 @@ function GroupInfo({ group, user, onUpdateGroup }) {
         if (confirm("정말 삭제하시겠습니까?")) {
             try {
                 const res = await axios.delete(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${group._id}`
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`,
+                    { data: { userId: user.userId } }
                 );
 
-                if (res.data) return alert(res.data.message);
+                user.group = res.data.groups;
+                setUser(user);
+
+                if (res.data) {
+                    navigate(-1, { replace: true });
+                    return alert(res.data.message);
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -106,9 +117,8 @@ function GroupInfo({ group, user, onUpdateGroup }) {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFileChange}
-                                style={{
-                                    display: "none",
-                                }}
+                                style={{ display: "none" }}
+                                required
                             />
                             <img
                                 className="group-image-preview"
@@ -174,7 +184,6 @@ function GroupInfo({ group, user, onUpdateGroup }) {
                                 <button
                                     onClick={() => {
                                         handleDeleteGroup();
-                                        navigate(-1);
                                     }}
                                 >
                                     삭제
