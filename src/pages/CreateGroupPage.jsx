@@ -90,7 +90,7 @@ function CreateGroupPage() {
             notifyGroupCreated(res.data.group);
 
             alert(res.data.message);
-            navigate("/");
+            navigate(`/study-groups/${res.data.group._id}`);
         } catch (error) {
             if (error.status === 409) return alert(error.response.data.message);
             console.error(error);
