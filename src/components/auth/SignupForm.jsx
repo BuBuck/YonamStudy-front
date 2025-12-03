@@ -118,7 +118,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                             required
                         />
                     </label>
-                    <button type="button" onClick={handleSendCode}>
+                    <button type="button" onClick={handleSendCode} disabled={isEmailVerified}>
                         {isCodeSent ? "재전송" : "인증번호 받기"}
                     </button>
                 </div>
@@ -163,7 +163,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                         value={formData.major}
                         onChange={onChange}
                         required
-                        // disabled={!isEmailVerified}
+                        disabled={!isEmailVerified}
                     />
                     <datalist id="major">
                         <option value="전기전자공학과" />

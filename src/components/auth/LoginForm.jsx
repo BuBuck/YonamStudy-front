@@ -42,7 +42,7 @@ function LoginForm({ formData, setFormData, onChange }) {
                     아이디
                     <input
                         name="studentId"
-                        type="number"
+                        type="text"
                         placeholder="학번 (이메일 앞 8자리)"
                         onChange={onChange}
                         required

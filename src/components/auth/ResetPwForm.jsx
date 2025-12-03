@@ -33,7 +33,7 @@ function ResetPwForm({ formData, setFormData, onChange, token }) {
 
         try {
             const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}api/auth/reset-password?token=${token}`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/auth/reset-password?token=${token}`,
                 { newPassword: formData.newPassword }
             );
 
