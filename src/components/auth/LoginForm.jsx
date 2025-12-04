@@ -27,7 +27,7 @@ function LoginForm({ formData, setFormData, onChange }) {
             alert(`환영합니다, ${res.data.user.name}님!`);
             setFormData({});
             setIsAuthenticated(true);
-            navigate("/", { replace: true });
+            navigate(-1, { replace: true });
         } catch (error) {
             console.error(error);
         }

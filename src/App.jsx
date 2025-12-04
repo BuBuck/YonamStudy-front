@@ -76,7 +76,7 @@ function App() {
                     />
                     <Route
                         exact
-                        path="/dashboard"
+                        path="/dashboard/:studentId"
                         element={
                             <ProtectedRoute>
                                 <DashboardPage />
@@ -100,6 +100,11 @@ function App() {
                                 <FullChatPage />
                             </ProtectedRoute>
                         }
+                    />
+                    <Route
+                        exact
+                        path="/bubuck"
+                        element={<Navigate to="https://github.com/BuBuck" />}
                     />
                     <Route exact path="/*" element={<Not />} />
                 </Routes>

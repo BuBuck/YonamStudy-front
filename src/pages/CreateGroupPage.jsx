@@ -23,26 +23,24 @@ function CreateGroupPage() {
 
     const navigate = useNavigate();
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    const [_, setUser] = useLocalStorage("user", "");
+    const [user, setUser] = useLocalStorage("user", null);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
 
         if (!selectedFile) {
+            setFile(null);
             setPreview(`${import.meta.env.VITE_BACKEND_URL}${defaultGroupImage}`);
-            return setFile(`${import.meta.env.VITE_BACKEND_URL}${defaultGroupImage}`);
+            return;
         }
 
         setFile(selectedFile);
-
         const previewUrl = URL.createObjectURL(selectedFile);
         setPreview(previewUrl);
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setFormData({
             ...formData,
             [name]: value,
@@ -50,29 +48,34 @@ function CreateGroupPage() {
     };
 
     const handleUploadImage = async (group) => {
+        if (!file) return group;
+
         const _formData = new FormData();
         _formData.append("image", file);
         _formData.append("groupId", group._id);
 
         try {
-            await axios.post(
+            const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/upload-groupImage`,
                 _formData,
                 {
-                    // 지금 전송 중인 데이터 안에는 파일이 섞여있다고 알려주는 헤더이다.
-                    // (없어도 axios가 자동으로 해주지만 명시해 줌으로써 오류 발생 감소)
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
                 }
             );
+
+            return res.data.group || group;
         } catch (error) {
             console.error(error);
+            return group;
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!user) return alert("로그인이 필요합니다.");
 
         try {
             const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/`, {
@@ -82,17 +85,27 @@ function CreateGroupPage() {
                 userId: user.userId,
             });
 
-            await handleUploadImage(res.data.group);
+            let createdGroup = res.data.group;
 
-            user.group.push(res.data.group);
-            setUser(user);
+            if (file) {
+                createdGroup = await handleUploadImage(createdGroup);
+            }
 
-            notifyGroupCreated(res.data.group);
+            const updatedUser = {
+                ...user,
+                group: [...(user.group || []), createdGroup],
+            };
+            setUser(updatedUser);
+
+            // 스터디 그룹 생성 후 이벤트를 실행해 사용자를 생성된 스터디 그룹 소켓에 join 시킴
+            notifyGroupCreated(createdGroup);
 
             alert(res.data.message);
-            navigate(`/study-groups/${res.data.group._id}`);
+            navigate(`/study-groups/${createdGroup._id}`, { replace: true });
         } catch (error) {
-            if (error.status === 409) return alert(error.response.data.message);
+            if (error.response && error.response.status === 409) {
+                return alert(error.response.data.message);
+            }
             console.error(error);
         }
     };
