@@ -1,0 +1,9 @@
+.commentUl {
+    list-style: none;
+    padding-inline-start: 1em;
+}
+
+.commentImage {
+    width: 100px;
+    height: 100px;
+}

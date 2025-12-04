@@ -20,7 +20,7 @@ import { AuthContext } from "./contexts/auth/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import "./App.css";
+import "./styles/App.css";
 
 function App() {
     const data = useContext(AuthContext);
@@ -33,11 +33,11 @@ function App() {
                         exact
                         path="/"
                         element={
-                            <div>
+                            <>
                                 <Header />
                                 <MainPage />
                                 <Footer />
-                            </div>
+                            </>
                         }
                     />
                     <Route
@@ -51,7 +51,10 @@ function App() {
                             )
                         }
                     />
-                    <Route path="/auth/:category" element={<AuthPage />} />
+                    <Route
+                        path="/auth/:category"
+                        element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
+                    />
 
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
 
@@ -59,10 +62,10 @@ function App() {
                         exact
                         path="/study-groups/:groupId"
                         element={
-                            <div>
+                            <>
                                 <Header />
                                 <GroupPage />
-                            </div>
+                            </>
                         }
                     />
                     <Route

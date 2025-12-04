@@ -81,7 +81,7 @@ function Comment({ groupId, group, user }) {
     return (
         <div>
             {/* 댓글 입력창 */}
-            {user && <CommentInput onAddComment={handleAddComment} />}
+            {user && <CommentInput user={user} onAddComment={handleAddComment} />}
             {/* 댓글 목록 (수정/삭제 기능 포함) */}
             <CommentList
                 user={user}

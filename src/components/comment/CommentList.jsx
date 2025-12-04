@@ -2,8 +2,9 @@ import React, { useState } from "react";
 
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
-
 dayjs.locale("ko");
+
+import styles from "../../styles/components/Comment.module.css";
 
 function CommentList({ user, group, comments, onEditComment, onDeleteComment }) {
     const [editingCommentId, setEditingCommentId] = useState(null);
@@ -18,12 +19,18 @@ function CommentList({ user, group, comments, onEditComment, onDeleteComment }) 
     };
 
     return (
-        <ul>
+        <ul className={styles.commentUl}>
             {comments.map((comment) => (
                 <li key={comment._id}>
                     {editingCommentId === comment._id ? (
                         // 수정 모드일 때
                         <div style={{ display: "flex", gap: "5px" }}>
+                            <img
+                                className={styles.commentImage}
+                                src={`${import.meta.env.VITE_BACKEND_URL}${
+                                    comment.commenter.userProfile
+                                }`}
+                            />
                             <input
                                 value={newContent}
                                 onChange={(e) => setNewContent(e.target.value)}
@@ -49,8 +56,14 @@ function CommentList({ user, group, comments, onEditComment, onDeleteComment }) 
                         // 일반 모드일 때
                         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                <img
+                                    className={styles.commentImage}
+                                    src={`${import.meta.env.VITE_BACKEND_URL}${
+                                        comment.commenter.userProfile
+                                    }`}
+                                />
                                 <div>
-                                    {comment.content}
+                                    <h3>{comment.content}</h3>
                                     <div>
                                         {`${comment.commenter.major} ${
                                             user?.userId === comment.commenter?._id ||
@@ -72,6 +85,7 @@ function CommentList({ user, group, comments, onEditComment, onDeleteComment }) 
                                         }`}
                                     </div>
                                 </div>
+
                                 {user?.userId === comment.commenter?._id ? (
                                     <div>
                                         <button

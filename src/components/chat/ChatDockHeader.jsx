@@ -5,8 +5,8 @@ import { GoChevronLeft } from "react-icons/go";
 import { GoScreenFull } from "react-icons/go";
 import { GoX } from "react-icons/go";
 
-import "../../style/chat/ChatDock.css";
-import "../../style/chat/ChatDockHeader.css";
+import "../../styles/chat/ChatDock.css";
+import "../../styles/chat/ChatDockHeader.css";
 
 function ChatHeader({ onDockClick, onSelectGroup, selectGroup, groups, notification }) {
     const navigate = useNavigate();

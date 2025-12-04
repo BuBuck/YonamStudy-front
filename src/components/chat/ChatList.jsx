@@ -1,4 +1,4 @@
-import "../../style/chat/ChatList.css";
+import "../../styles/chat/ChatList.css";
 
 const formatTime = (isoString) => {
     if (!isoString) return "";

@@ -1,6 +1,6 @@
 import React from "react";
 
-import "../../style/chat/InputField.css";
+import "../../styles/chat/InputField.css";
 
 const InputField = ({ message, setMessage, sendMessage }) => {
     return (

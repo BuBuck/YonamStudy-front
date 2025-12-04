@@ -4,7 +4,7 @@ import axios from "axios";
 
 import useLocalStorage from "../../hooks/useLocalStorage";
 
-import "../../style/group/GroupInfo.css";
+import "./GroupInfo.css";
 
 function GroupInfo({ groupId, group, user, onUpdateGroup }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -132,18 +132,12 @@ function GroupInfo({ groupId, group, user, onUpdateGroup }) {
                             <div
                                 className="group-image"
                                 onClick={() => fileInputRef.current.click()}
-                                style={{ cursor: "pointer", position: "relative" }}
                             >
                                 <img
                                     className="group-image-preview"
                                     alt="스터디그룹 이미지 미리보기"
                                     src={preview}
-                                    style={{
-                                        width: "100px",
-                                        height: "100px",
-                                        objectFit: "cover",
-                                        borderRadius: "10px",
-                                    }}
+                                    style={{}}
                                 />
                                 <div
                                     style={{
@@ -242,7 +236,7 @@ function GroupInfo({ groupId, group, user, onUpdateGroup }) {
                         )}
                     </div>
                     <div style={{ margin: "10px 30px" }}>
-                        <div style={{ marginBottom: "8px", fontWeight: 600 }}>그룹 설명</div>
+                        <div style={{ marginBottom: "8px", fontWeight: 600 }}>스터디 소개</div>
                         <div className="group-description" style={{ whiteSpace: "pre-wrap" }}>
                             {group.description}
                         </div>

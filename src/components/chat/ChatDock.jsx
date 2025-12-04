@@ -10,7 +10,7 @@ import { onGroupCreated } from "../../utils/groupSignal";
 
 import { IoPaperPlaneOutline } from "react-icons/io5";
 
-import "../../style/chat/ChatDock.css";
+import "../../styles/chat/ChatDock.css";
 import { useLocation } from "react-router-dom";
 
 function ChatDock() {

@@ -9,7 +9,7 @@ import Chat from "../components/chat/Chat";
 
 import { onGroupCreated } from "../utils/groupSignal";
 
-import "../style/pages/FullChatPage.css";
+import "../styles/pages/FullChatPage.css";
 
 function FullChatPage() {
     const { groupId } = useParams();

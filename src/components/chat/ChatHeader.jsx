@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { GoScreenNormal } from "react-icons/go";
 
-import "../../style/chat/ChatHeader.css";
+import "../../styles/chat/ChatHeader.css";
 
 function ChatHeader({ selectGroup }) {
     const navigate = useNavigate();

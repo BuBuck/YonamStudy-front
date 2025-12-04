@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // 댓글 입력 컴포넌트
-function CommentInput({ onAddComment }) {
+function CommentInput({ user, onAddComment }) {
     // 입력창에 적은 글을 저장하는 상태
     const [content, setContent] = useState("");
 
@@ -19,6 +19,10 @@ function CommentInput({ onAddComment }) {
     return (
         <form onSubmit={handleSubmit}>
             {/* 댓글 입력창 */}
+            <img
+                src={`${import.meta.env.VITE_BACKEND_URL}${user.userProfile}`}
+                style={{ width: "100px", height: "100px" }}
+            />
             <input
                 type="text"
                 value={content} // 입력값을 상태와 연결

@@ -137,6 +137,7 @@ function CreateGroupPage() {
                             onClick={() => fileInputRef.current.click()}
                         />
                     </div>
+
                     <label>
                         <h2>그룹 이름</h2>
                         <input
@@ -153,7 +154,7 @@ function CreateGroupPage() {
             </div>
 
             <label>
-                <h2>그룹 설명</h2>
+                <h2>그룹 소개</h2>
                 <textarea
                     name="description"
                     placeholder="그룹에 대한 설명을 적어주세요."
