@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +21,7 @@ function CreateGroupPage() {
 
     const [formData, setFormData] = useState(defaultFormData);
 
+    const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
     const [user, setUser] = useLocalStorage("user", null);
@@ -112,34 +113,54 @@ function CreateGroupPage() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                name="group"
-                placeholder="그룹 이름"
-                value={formData.group}
-                onChange={handleChange}
-                required
-            />
-            <textarea
-                name="description"
-                placeholder="그룹 설명"
-                value={formData.description}
-                onChange={handleChange}
-            />
-            <div style={{ marginBottom: "10px" }}>
-                <img
-                    src={preview}
-                    alt="미리보기"
-                    style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                        border: "1px solid #ccc",
-                    }}
-                />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex" }}>
+                    <div style={{ marginBottom: "10px" }}>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            name="groupImage"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
+                        />
+                        <img
+                            src={preview}
+                            alt="미리보기"
+                            style={{
+                                width: "100px",
+                                height: "100px",
+                                objectFit: "cover",
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => fileInputRef.current.click()}
+                        />
+                    </div>
+                    <label>
+                        <h2>그룹 이름</h2>
+                        <input
+                            type="text"
+                            name="group"
+                            placeholder="그룹 이름을 입력해주세요."
+                            value={formData.group}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
+                </div>
+                <button type="submit">그룹 생성</button>
             </div>
-            <input type="file" name="groupImage" accept="image/*" onChange={handleFileChange} />
-            <button type="submit">그룹 생성</button>
+
+            <label>
+                <h2>그룹 설명</h2>
+                <textarea
+                    name="description"
+                    placeholder="그룹에 대한 설명을 적어주세요."
+                    value={formData.description}
+                    onChange={handleChange}
+                />
+            </label>
         </form>
     );
 }

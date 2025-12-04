@@ -130,7 +130,7 @@ function GroupInfo({ groupId, group, user, onUpdateGroup }) {
                                 style={{ display: "none" }}
                             />
                             <div
-                                className="image-wrapper"
+                                className="group-image"
                                 onClick={() => fileInputRef.current.click()}
                                 style={{ cursor: "pointer", position: "relative" }}
                             >
