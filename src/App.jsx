@@ -73,7 +73,9 @@ function App() {
                         path="/createGroup"
                         element={
                             <ProtectedRoute>
+                                <Header />
                                 <CreateGroupPage />
+                                <Footer />
                             </ProtectedRoute>
                         }
                     />

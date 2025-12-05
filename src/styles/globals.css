@@ -201,3 +201,7 @@ img {
     font-weight: 600;
     color: var(--color-primary);
 }
+
+.required-mark {
+    color: var(--color-accent);
+}

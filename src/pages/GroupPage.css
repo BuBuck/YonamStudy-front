@@ -151,6 +151,20 @@
     border-bottom: 2px solid var(--color-background);
 }
 
+.group-avatar {
+    margin-bottom: 1rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
 /* Sidebar: Leader Info */
 .leader-h3 {
     display: flex;
@@ -173,7 +187,6 @@
     width: 56px;
     height: 56px;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -383,7 +396,6 @@
     width: 60px;
     height: 60px;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
     display: flex;
     align-items: center;
     justify-content: center;

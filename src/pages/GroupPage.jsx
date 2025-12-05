@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import useLocalStorage from "../hooks/useLocalStorage";
 
+import Loading from "../components/Loading/Loading";
 import Comment from "../components/comment/Comment";
 
 import { GoPeople } from "react-icons/go";
@@ -12,7 +13,6 @@ import { GoLocation } from "react-icons/go";
 import { GoX } from "react-icons/go";
 
 import "./GroupPage.css";
-import Loading from "../components/Loading/Loading";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -21,37 +21,62 @@ function GroupPage() {
     const [isJoined, setIsJoined] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
-        schedule: {
-            weeks: [],
-            time: "",
-        },
+        schedule: { weeks: [], time: "" },
     });
 
     const [isEditTag, setIsEditTag] = useState(null);
+    const [tagInput, setTagInput] = useState("");
 
     const { groupId } = useParams();
     const navigate = useNavigate();
 
-    const [user, _] = useLocalStorage("user", null);
+    const fileInputRef = useRef(null);
+    const [file, setFile] = useState(null);
+
+    const [user, setUser] = useLocalStorage("user", null);
+
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        return path.startsWith("http") ? path : `${import.meta.env.VITE_BACKEND_URL}${path}`;
+    };
+
+    const [preview, setPreview] = useState("");
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        setFile(selectedFile);
+        const previewUrl = URL.createObjectURL(selectedFile);
+        setPreview(previewUrl);
+    };
+
+    const fetchGroupData = async () => {
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`
+            );
+
+            setGroup(res.data.group);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
-        const handleGetGroupData = async () => {
-            try {
-                const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`
-                );
-
-                setGroup(res.data.group);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        handleGetGroupData();
+        fetchGroupData();
+        handleJoined();
     }, []);
 
     if (!group) {
         return <Loading message="스터디 그룹 정보를 불러오고 있습니다..." />;
     }
+
+    const handleJoined = () => {
+        if (user?.group?.map((g) => g._id).toString() === groupId) {
+            return setIsJoined(true);
+        }
+    };
 
     const handleDayToggle = (day) => {
         setFormData((prev) => {
@@ -66,10 +91,7 @@ function GroupPage() {
                     },
                 };
             } else {
-                return (
-                    console.log(day),
-                    { ...prev, schedule: { ...prev.schedule, weeks: [...currentWeeks, day] } }
-                );
+                return { ...prev, schedule: { ...prev.schedule, weeks: [...currentWeeks, day] } };
             }
         });
     };
@@ -104,28 +126,43 @@ function GroupPage() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleAddTag = () => {
+        if (!tagInput.trim()) return;
+        if (formData.tags.includes(tagInput)) {
+            alert("이미 존재하는 태그입니다.");
+            return;
+        }
+
+        setFormData({
+            ...formData,
+            tags: [...formData.tags, tagInput],
+        });
+
+        setTagInput("");
+    };
+
     const handleDeleteTag = (tag, index) => {
         if (formData.tags[index] === tag) {
-            console.log(formData.tags);
-            console.log([index]);
             formData.tags.splice(index, 1);
             setIsEditTag(null);
         }
     };
 
-    const handleJoin = () => {
-        setIsJoined(true);
-    };
+    const handleLeave = async () => {
+        if (!confirm("정말 스터디 그룹을 탈퇴하시겠습니까?")) return;
 
-    const handleLeave = () => {
-        setIsJoined(false);
+        try {
+            setIsJoined(false);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const formCheck = () => {
         try {
             if (!formData.group) throw "스터디 그룹 이름은 반드시 있어야합니다.";
             if (!formData.schedule.time) throw "일정 시간은 반드시 있어야합니다.";
-            if (!formData.schedule.weeks) throw "일정 요일은 반드시 있어야합니다.";
+            if (formData.schedule.weeks.length < 1) throw "일정 요일은 반드시 있어야합니다.";
             if (!formData.location) throw "장소는 반드시 있어야합니다.";
             if (!formData.duration) throw "기간은 반드시 있어야합니다.";
             if (!formData.difficulty) throw "난이도는 반드시 있어야합니다.";
@@ -142,13 +179,92 @@ function GroupPage() {
             if (!formData.maxMembers) throw "최대 인원 수는 반드시 있어야합니다.";
             else if (formData.maxMembers < group.groupMembers?.length + 1)
                 throw "최대 인원 수가 현재 스터디 그룹 멤버 수 보다 작을 수 없습니다.";
+
+            return true;
         } catch (error) {
             alert(error);
+            return false;
         }
     };
 
-    const handleSubmit = async () => {
-        formCheck();
+    const handleUpdateGroup = async () => {
+        if (!formCheck()) return;
+
+        try {
+            const res = await axios.put(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${group._id}`,
+                {
+                    groupName: formData.group,
+                    description: formData.description,
+                    groupImage: formData.groupImage,
+                    schedule: {
+                        weeks: formData.schedule.weeks,
+                        time: formData.schedule.time,
+                    },
+                    location: formData.location,
+                    duration: formData.duration,
+                    difficulty: formData.difficulty,
+                    tags: formData.tags,
+                    maxMembers: formData.maxMembers,
+                    userId: user.userId,
+                }
+            );
+
+            if (!res.data) throw "수정 실패";
+
+            if (file) {
+                const _formData = new FormData();
+                _formData.append("image", file);
+                _formData.append("groupId", group._id);
+
+                await axios.put(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/update-groupImage`,
+                    _formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+            }
+
+            await fetchGroupData();
+
+            setIsEditing(false);
+            setFile(null);
+            alert(`${group.group}의 정보가 수정되었습니다.`);
+        } catch (error) {
+            console.error(error);
+            if (error.response?.status === 409) return alert(error.response.data.message);
+        }
+    };
+
+    const handleDeleteGroup = async () => {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            try {
+                const res = await axios.delete(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`,
+                    { data: { userId: user.userId } }
+                );
+
+                if (res.data.groups) {
+                    const updatedUser = { ...user, group: res.data.groups };
+                    setUser(updatedUser);
+                } else {
+                    const updatedGroups = user.group.filter(
+                        (g) => (typeof g === "string" ? g : g._id) !== groupId
+                    );
+                    setUser({ ...user, group: updatedGroups });
+                }
+
+                if (res.data) {
+                    alert(res.data.message);
+                    navigate(-1, { replace: true });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
     };
 
     return (
@@ -216,6 +332,7 @@ function GroupPage() {
                     </div>
                 </div>
             </div>
+
             <div className="container">
                 <div className="group-layout">
                     <main className="group-main">
@@ -227,7 +344,8 @@ function GroupPage() {
                                     className="input-pop"
                                     name="description"
                                     placeholder={`${group.group}을(를) 소개해주세요!`}
-                                    rows={4}
+                                    rows={5}
+                                    maxLength={500}
                                     value={formData.description || ""}
                                     onChange={handleChange}
                                     style={{ width: "100%", minHeight: "100px" }}
@@ -245,9 +363,17 @@ function GroupPage() {
                                         type="text"
                                         name="tags"
                                         className="input-pop"
-                                        placeholder="추가할 태그를 입력해주세요"
+                                        placeholder=" '#' 을 제외하고 추가할 태그를 입력해주세요"
+                                        value={tagInput}
+                                        onChange={(e) => setTagInput(e.target.value)}
                                     />
-                                    <button className="btn btn-primary btn-full">추가</button>
+                                    <button
+                                        type="text"
+                                        className="btn btn-primary btn-full"
+                                        onClick={handleAddTag}
+                                    >
+                                        추가
+                                    </button>
                                 </div>
                             ) : null}
                             <div className="tags-container">
@@ -315,28 +441,59 @@ function GroupPage() {
 
                     <aside className="group-sidebar">
                         <div className="sidebar-card">
+                            {isEditing ? (
+                                <div>
+                                    <input
+                                        ref={fileInputRef}
+                                        name="groupImage"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ display: "none" }}
+                                    />
+                                    <div
+                                        className="group-image"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        <img
+                                            src={preview}
+                                            alt="스터디그룹 이미지 미리보기"
+                                            className="group-avatar"
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <img
+                                    src={`${getImageUrl(group.groupImage)}`}
+                                    alt="스터디그룹 이미지 미리보기"
+                                    className="group-avatar"
+                                />
+                            )}
+
                             <div className="sidebar-actions">
                                 {!isJoined ? (
                                     <button
                                         className="btn btn-primary btn-full"
-                                        onClick={handleJoin}
+                                        // onClick={handleJoin}
                                     >
                                         그룹 신청하기
                                     </button>
                                 ) : (
                                     <>
                                         <button
-                                            className="btn btn-secondary btn-full"
+                                            className="btn btn-primary btn-full"
                                             onClick={() => navigate(`/chat/${groupId}`)}
                                         >
                                             채팅
                                         </button>
-                                        <button
-                                            className="btn btn-outline btn-full"
-                                            onClick={handleLeave}
-                                        >
-                                            그룹 탈퇴하기
-                                        </button>
+                                        {user?.userId !== group?.groupLeader?._id ? (
+                                            <button
+                                                className="btn btn-outline btn-full"
+                                                onClick={handleLeave}
+                                            >
+                                                그룹 탈퇴하기
+                                            </button>
+                                        ) : null}
                                     </>
                                 )}
                             </div>
@@ -351,15 +508,20 @@ function GroupPage() {
                                             <button
                                                 type="button"
                                                 className="btn btn-outline btn-full"
-                                                onClick={() => setIsEditing(false)}
+                                                onClick={() => {
+                                                    setIsEditing(false);
+                                                    handleSetFormData();
+                                                    setPreview(getImageUrl(group.groupImage));
+                                                    setFile(null);
+                                                }}
                                             >
                                                 취소
                                             </button>
 
                                             <button
-                                                type="submit"
+                                                type="button"
                                                 className="btn btn-primary btn-full"
-                                                onClick={handleSubmit}
+                                                onClick={handleUpdateGroup}
                                             >
                                                 저장
                                             </button>
@@ -370,6 +532,7 @@ function GroupPage() {
                                             className="btn btn-primary btn-full"
                                             onClick={() => {
                                                 handleSetFormData();
+                                                setPreview(getImageUrl(group.groupImage));
                                                 setIsEditing(true);
                                             }}
                                         >
@@ -497,6 +660,17 @@ function GroupPage() {
                                     )}
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="sidebar-actions">
+                            {group.groupLeader?._id === user?.userId ? (
+                                <button
+                                    className="btn btn-secondary btn-full"
+                                    onClick={handleDeleteGroup}
+                                >
+                                    그룹 삭제하기
+                                </button>
+                            ) : null}
                         </div>
                     </aside>
                 </div>
