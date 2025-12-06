@@ -1,3 +1,4 @@
+/* AuthPage, LoginForm, SignupForm */
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -226,5 +227,681 @@
 
     .auth-title {
         font-size: 1.5rem;
+    }
+}
+
+/* ForgotPasswordForm */
+.forgot-password-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8f0f0 0%, #f7fafc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.forgot-password-container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.forgot-password-card,
+.success-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-header {
+    padding: 48px 40px 32px;
+    text-align: center;
+}
+
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.card-header h1 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 28px;
+}
+
+.subtitle {
+    color: #718096;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.forgot-password-form {
+    padding: 0 40px 32px;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    color: #c53030;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.error-message svg {
+    flex-shrink: 0;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid #e8f0f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.card-footer {
+    padding: 24px 40px;
+    background: #f7fafc;
+    text-align: center;
+}
+
+/* Success Card */
+.success-card {
+    padding: 48px 40px;
+    text-align: center;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.success-card h1 {
+    margin: 0 0 16px 0;
+    color: #4a5568;
+    font-size: 28px;
+}
+
+.success-description {
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.success-description strong {
+    color: #4a5568;
+}
+
+.success-info {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #718096;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.info-item:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.info-item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #ff6b6b;
+}
+
+.success-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.success-actions .btn {
+    flex: 1;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .forgot-password-page {
+        padding: 20px;
+    }
+
+    .card-header,
+    .forgot-password-form {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .card-header {
+        padding-top: 32px;
+        padding-bottom: 24px;
+    }
+
+    .forgot-password-form {
+        padding-bottom: 24px;
+    }
+
+    .card-footer {
+        padding: 20px 24px;
+    }
+
+    .success-card {
+        padding: 32px 24px;
+    }
+
+    .icon-wrapper,
+    .success-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .icon-wrapper svg,
+    .success-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .card-header h1,
+    .success-card h1 {
+        font-size: 24px;
+    }
+
+    .subtitle,
+    .success-description {
+        font-size: 14px;
+    }
+
+    .success-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .forgot-password-page {
+        padding: 0;
+    }
+
+    .forgot-password-container {
+        max-width: 100%;
+    }
+
+    .forgot-password-card,
+    .success-card {
+        border-radius: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+/* ResetPasswordForm */
+.reset-password-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8f0f0 0%, #f7fafc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.reset-password-container {
+    width: 100%;
+    max-width: 520px;
+}
+
+.reset-password-card,
+.error-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-header {
+    padding: 48px 40px 32px;
+    text-align: center;
+}
+
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.card-header h1 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 28px;
+}
+
+.subtitle {
+    color: #718096;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.reset-password-form {
+    padding: 0 40px 32px;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    color: #c53030;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.error-message svg {
+    flex-shrink: 0;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 48px;
+    border: 2px solid #e8f0f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+    color: #718096;
+}
+
+/* 비밀번호 강도 */
+.password-strength {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.strength-bars {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.strength-bar {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    background: #e8f0f0;
+    transition: background-color 0.3s ease;
+}
+
+.strength-text {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* 비밀번호 요구사항 */
+.password-requirements {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #a0aec0;
+    transition: color 0.2s ease;
+}
+
+.requirement svg {
+    flex-shrink: 0;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+}
+
+.requirement.met {
+    color: #48bb78;
+}
+
+.requirement.met svg {
+    opacity: 1;
+}
+
+/* 비밀번호 일치 */
+.password-match {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.password-match.match {
+    color: #48bb78;
+}
+
+.password-match.mismatch {
+    color: #ff6b6b;
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.card-footer {
+    padding: 24px 40px;
+    background: #f7fafc;
+    text-align: center;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #718096;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--color-accent);
+}
+
+/* Error Card */
+.error-card {
+    padding: 48px 40px;
+    text-align: center;
+}
+
+.error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.error-card h1 {
+    margin: 0 0 16px 0;
+    color: #4a5568;
+    font-size: 28px;
+}
+
+.error-description {
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.error-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.error-actions .btn {
+    flex: 1;
+    max-width: 200px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .reset-password-page {
+        padding: 20px;
+    }
+
+    .card-header,
+    .reset-password-form {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .card-header {
+        padding-top: 32px;
+        padding-bottom: 24px;
+    }
+
+    .reset-password-form {
+        padding-bottom: 24px;
+    }
+
+    .card-footer {
+        padding: 20px 24px;
+    }
+
+    .error-card {
+        padding: 32px 24px;
+    }
+
+    .icon-wrapper,
+    .error-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .icon-wrapper svg,
+    .error-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .card-header h1,
+    .error-card h1 {
+        font-size: 24px;
+    }
+
+    .subtitle,
+    .error-description {
+        font-size: 14px;
+    }
+
+    .password-requirements {
+        grid-template-columns: 1fr;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-actions .btn {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .reset-password-page {
+        padding: 0;
+    }
+
+    .reset-password-container {
+        max-width: 100%;
+    }
+
+    .reset-password-card,
+    .error-card {
+        border-radius: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 }

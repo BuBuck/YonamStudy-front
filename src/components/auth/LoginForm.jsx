@@ -6,33 +6,51 @@ import { AuthContext } from "../../contexts/auth/AuthContext";
 
 import "../../pages/AuthPage.css";
 
-function LoginForm({ formData, setFormData, onChange }) {
+function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
     const navigate = useNavigate();
 
     const { setIsAuthenticated } = useContext(AuthContext);
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.studentId) {
+            newErrors.studentId = "학번을 입력해주세요.";
+        }
+
+        if (!formData.password) {
+            newErrors.password = "비밀번호를 입력해주세요.";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        try {
-            const { studentId, password, stayLogin } = formData;
+        if (validateForm()) {
+            try {
+                const { studentId, password, stayLogin } = formData;
 
-            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
-                studentId,
-                password,
-                stayLogin,
-            });
+                const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+                    studentId,
+                    password,
+                    stayLogin,
+                });
 
-            localStorage.setItem("user", JSON.stringify(res.data.user));
-            localStorage.setItem("expiresToken", JSON.stringify(res.data.expiresToken));
-            localStorage.setItem("expiresAt", JSON.stringify(res.data.expiresAt));
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+                localStorage.setItem("expiresToken", JSON.stringify(res.data.expiresToken));
+                localStorage.setItem("expiresAt", JSON.stringify(res.data.expiresAt));
 
-            alert(`환영합니다, ${res.data.user.name}님!`);
-            setFormData({});
-            setIsAuthenticated(true);
-            navigate(-1, { replace: true });
-        } catch (error) {
-            console.error(error);
+                alert(`환영합니다, ${res.data.user.name}님!`);
+                setFormData({});
+                setIsAuthenticated(true);
+                navigate(-1, { replace: true });
+            } catch (error) {
+                console.error(error);
+                if (error.response.status !== 500) alert(error.response.data.message);
+            }
         }
     };
 
@@ -56,6 +74,7 @@ function LoginForm({ formData, setFormData, onChange }) {
                                     required
                                 />
                             </label>
+                            {errors.studentId && <p className="form-error">{errors.studentId}</p>}
                         </div>
 
                         <label className="form-label">
@@ -69,6 +88,7 @@ function LoginForm({ formData, setFormData, onChange }) {
                                 required
                             />
                         </label>
+                        {errors.password && <p className="form-error">{errors.password}</p>}
 
                         <div className="form-options">
                             <label className="checkbox-label">

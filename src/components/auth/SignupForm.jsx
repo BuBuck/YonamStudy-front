@@ -2,47 +2,64 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const getMajorFromEmail = (email) => {
-    const majorCode = Number(email.substring(3, 4));
+import "../../pages/AuthPage.css";
 
-    switch (majorCode) {
-        case 1:
-            return "전기전자공학과";
-        case 2:
-            return "스마트전기전자공학과";
-        case 3:
-            return "기계공학과";
-        case 4:
-            return "스마트기계공학과";
-        case 6:
-            return "스마트소프트웨어학과";
-        default:
-            return null;
-    }
-};
-
-function SignupForm({ formData, setFormData, onChange }) {
+function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
     const [isCodeSent, setIsCodeSent] = useState(false);
     const [isEmailVerified, setIsEmailVerified] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleSendCode = async () => {
+    const validateForm = () => {
+        const newErrors = {};
+
         if (!formData.email) {
-            return alert("이메일을 입력해주세요");
+            newErrors.email = "이메일을 입력해주세요.";
+        } else if (!/^[0-9]{8}@st\.yc\.ac\.kr$/.test(formData.email)) {
+            newErrors.email = "올바른 이메일 형식이 아닙니다.";
         }
-        try {
-            const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/auth/send-verification`,
-                {
-                    email: formData.email,
-                }
-            );
-            alert(res.data.message);
-            setIsCodeSent(true);
-            setIsEmailVerified(false);
-        } catch (error) {
-            console.error(error);
+        if (!formData.code) {
+            newErrors.code = "6자리 인증코드를 입력해주세요.";
+        }
+
+        if (isEmailVerified) {
+            if (!formData.name) {
+                newErrors.name = "이름을 입력해주세요.";
+            }
+            if (!formData.major) {
+                newErrors.major = "학과를 선택해주세요.";
+            }
+            if (!formData.phoneNumber) {
+                newErrors.phoneNumber = "전화번호를 입력해주세요.";
+            }
+            if (!formData.birthdate) {
+                newErrors.birthdate = "생년월일을 입력해주세요.";
+            }
+            if (!formData.password) {
+                newErrors.password = "비밀번호를 입력해주세요.";
+            } else if (formData.password.length < 8) {
+                newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
+            }
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSendCode = async () => {
+        if (validateForm()) {
+            try {
+                const res = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/auth/send-verification`,
+                    {
+                        email: formData.email,
+                    }
+                );
+                alert(res.data.message);
+                setIsCodeSent(true);
+                setIsEmailVerified(false);
+            } catch (error) {
+                console.error(error);
+            }
         }
     };
 
@@ -59,15 +76,6 @@ function SignupForm({ formData, setFormData, onChange }) {
             alert(res.data.message);
             setIsEmailVerified(true);
             setIsCodeSent(false);
-
-            if (isEmailVerified) {
-                const autoGetMajor = getMajorFromEmail(formData.email);
-
-                setFormData((prev) => ({
-                    ...prev,
-                    major: autoGetMajor,
-                }));
-            }
         } catch (error) {
             console.error(error);
             setIsEmailVerified(false);
@@ -77,27 +85,28 @@ function SignupForm({ formData, setFormData, onChange }) {
     const handleSignup = async (e) => {
         e.preventDefault();
 
-        if (!isEmailVerified) {
-            return alert("이메일 인증을 먼저 완료해주세요.");
-        }
+        if (validateForm()) {
+            try {
+                const { name, major, email, phoneNumber, birthdate, password } = formData;
+                const res = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/auth/sign-up`,
+                    {
+                        name,
+                        major,
+                        email,
+                        phoneNumber,
+                        birthdate,
+                        password,
+                    }
+                );
 
-        try {
-            const { name, major, email, phoneNumber, birthdate, password } = formData;
-            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/sign-up`, {
-                name,
-                major,
-                email,
-                phoneNumber,
-                birthdate,
-                password,
-            });
-
-            alert(res.data.message);
-            navigate("/auth/login");
-            setFormData({});
-            setIsEmailVerified(false);
-        } catch (error) {
-            console.error(error);
+                alert(res.data.message);
+                navigate("/auth/login");
+                setFormData({});
+                setIsEmailVerified(false);
+            } catch (error) {
+                console.error(error);
+            }
         }
     };
 
@@ -123,6 +132,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                                 required
                             />
                         </label>
+                        {errors.email && <p className="form-error">{errors.email}</p>}
                         <button
                             type="button"
                             className={isEmailVerified ? "input-soft" : "btn btn-primary btn-full"}
@@ -146,6 +156,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                                     onChange={onChange}
                                     required
                                 />
+                                {errors.code && <p className="form-error">{errors.code}</p>}
                                 <button
                                     type="button"
                                     className="btn btn-primary btn-full"
@@ -168,28 +179,29 @@ function SignupForm({ formData, setFormData, onChange }) {
                             disabled={!isEmailVerified}
                             required
                         />
+                        {errors.name && <p className="form-error">{errors.name}</p>}
                     </label>
 
                     <label className="form-label">
                         학과
-                        <input
+                        <select
                             name="major"
-                            type="text"
-                            list="major"
                             className={!isEmailVerified ? "input-soft" : "form-input"}
-                            placeholder="학과 (예: 스마트소프트웨어학과)"
                             value={formData.major}
                             onChange={onChange}
-                            required
                             disabled={!isEmailVerified}
-                        />
-                        <datalist id="major">
-                            <option value="전기전자공학과" />
-                            <option value="스마트전기전자공학과" />
-                            <option value="기계공학과" />
-                            <option value="스마트기계공학과" />
-                            <option value="스마트소프트웨어학과" />
-                        </datalist>
+                            required
+                        >
+                            <option value="" disabled={formData.major}>
+                                학과를 선택하세요
+                            </option>
+                            <option value="전기전자공학과">전기전자공학과</option>
+                            <option value="스마트전기전자공학과">스마트전기전자공학과</option>
+                            <option value="기계공학과">기계공학과</option>
+                            <option value="스마트기계공학과">스마트기계공학과</option>
+                            <option value="스마트소프트웨어학과">스마트소프트웨어학과</option>
+                        </select>
+                        {errors.major && <p className="form-error">{errors.major}</p>}
                     </label>
 
                     <label className="form-label">
@@ -203,6 +215,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                             required
                             disabled={!isEmailVerified}
                         />
+                        {errors.phoneNumber && <p className="form-error">{errors.phoneNumber}</p>}
                     </label>
 
                     <label className="form-label">
@@ -216,6 +229,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                             required
                             disabled={!isEmailVerified}
                         />
+                        {errors.birthdate && <p className="form-error">{errors.birthdate}</p>}
                     </label>
 
                     <label className="form-label">
@@ -229,6 +243,7 @@ function SignupForm({ formData, setFormData, onChange }) {
                             required
                             disabled={!isEmailVerified}
                         />
+                        {errors.password && <p className="form-error">{errors.password}</p>}
                     </label>
 
                     <button

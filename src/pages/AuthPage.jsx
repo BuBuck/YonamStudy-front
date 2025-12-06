@@ -3,14 +3,15 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 import SignupFrom from "../components/auth/SignupForm";
 import LoginForm from "../components/auth/LoginForm";
-import ChangePwForm from "../components/auth/ChangePwForm";
-import ResetPwForm from "../components/auth/ResetPwForm";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
+import ResetPasswordForm from "../components/auth/ResetPasswordForm";
 import Not from "./Not";
 
 import "./AuthPage.css";
 
 function AuthPage() {
     const [formData, setFormData] = useState({});
+    const [errors, setErrors] = useState({});
 
     const { category } = useParams();
     const [searchParams] = useSearchParams();
@@ -23,6 +24,13 @@ function AuthPage() {
             ...formData,
             [name]: value,
         });
+
+        if (errors[name]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: "",
+            }));
+        }
     };
 
     const renderForm = () => {
@@ -32,6 +40,8 @@ function AuthPage() {
                     <LoginForm
                         formData={formData}
                         setFormData={(data) => setFormData(data)}
+                        errors={errors}
+                        setErrors={setErrors}
                         onChange={handleChange}
                     />
                 );
@@ -40,12 +50,14 @@ function AuthPage() {
                     <SignupFrom
                         formData={formData}
                         setFormData={(data) => setFormData(data)}
+                        errors={errors}
+                        setErrors={setErrors}
                         onChange={handleChange}
                     />
                 );
             case "forgot-password":
                 return (
-                    <ChangePwForm
+                    <ForgotPasswordForm
                         formData={formData}
                         setFormData={(data) => setFormData(data)}
                         onChange={handleChange}
@@ -53,7 +65,7 @@ function AuthPage() {
                 );
             case "reset-password":
                 return (
-                    <ResetPwForm
+                    <ResetPasswordForm
                         formData={formData}
                         setFormData={(data) => setFormData(data)}
                         onChange={handleChange}
@@ -64,6 +76,10 @@ function AuthPage() {
                 return <Not />;
         }
     };
+
+    if (category === "forgot-password" || category === "reset-password") {
+        return renderForm();
+    }
 
     return (
         <div className="auth-page">
