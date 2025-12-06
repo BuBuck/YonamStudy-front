@@ -29,7 +29,7 @@ function SignupForm({ formData, setFormData, onChange }) {
 
     const handleSendCode = async () => {
         if (!formData.email) {
-            return alert("폼에 이메일을 입력해주세요.");
+            return alert("이메일을 입력해주세요");
         }
         try {
             const res = await axios.post(
@@ -102,116 +102,145 @@ function SignupForm({ formData, setFormData, onChange }) {
     };
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <form className="signup-form" onSubmit={handleSignup}>
-                <h3>회원가입</h3>
-
-                <div style={{ display: "flex" }}>
-                    <label>
-                        이메일
-                        <input
-                            name="email"
-                            type="email"
-                            placeholder="학교 이메일 (예:12345678@st.yc.ac.kr)"
-                            onChange={onChange}
-                            disabled={isEmailVerified}
-                            required
-                        />
-                    </label>
-                    <button type="button" onClick={handleSendCode} disabled={isEmailVerified}>
-                        {isCodeSent ? "재전송" : "인증번호 받기"}
-                    </button>
+        <div className="auth-right">
+            <div className="auth-form-container">
+                <div className="auth-header">
+                    <h2 className="auth-title">회원가입</h2>
+                    <p className="auth-subtitle">새 계정을 만들어서 스터디를 시작하세요</p>
                 </div>
 
-                {isCodeSent && !isEmailVerified && (
-                    <div>
-                        <label>
-                            인증번호
+                <form className="auth-form" onSubmit={handleSignup}>
+                    <div className="form-group">
+                        <label className="form-label">
+                            이메일
                             <input
-                                name="code"
-                                type="text"
-                                placeholder="인증 코드 6자리"
+                                name="email"
+                                type="email"
+                                className={isEmailVerified ? "input-soft" : "form-input"}
+                                placeholder="학교 이메일 (예:12345678@st.yc.ac.kr)"
                                 onChange={onChange}
+                                disabled={isEmailVerified}
                                 required
                             />
                         </label>
-                        <button type="button" onClick={handleCheckCode}>
-                            코드 확인
+                        <button
+                            type="button"
+                            className={isEmailVerified ? "input-soft" : "btn btn-primary btn-full"}
+                            style={isEmailVerified ? { display: "none" } : null}
+                            onClick={handleSendCode}
+                            disabled={isEmailVerified}
+                        >
+                            {isCodeSent ? "재전송" : "인증번호 받기"}
                         </button>
                     </div>
-                )}
 
-                <label>
-                    이름
-                    <input
-                        name="name"
-                        type="text"
-                        placeholder="이름 (예: 김연암)"
-                        onChange={onChange}
-                        disabled={!isEmailVerified}
-                        required
-                    />
-                </label>
+                    {isCodeSent && !isEmailVerified && (
+                        <div className="form-group">
+                            <label className="form-label">
+                                인증번호
+                                <input
+                                    name="code"
+                                    type="text"
+                                    className={isEmailVerified ? "input-soft" : "form-input"}
+                                    placeholder="인증 코드 6자리"
+                                    onChange={onChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-primary btn-full"
+                                    onClick={handleCheckCode}
+                                >
+                                    코드 확인
+                                </button>
+                            </label>
+                        </div>
+                    )}
 
-                <label>
-                    학과
-                    <input
-                        name="major"
-                        type="text"
-                        list="major"
-                        placeholder="학과 (예: 스마트소프트웨어학과)"
-                        value={formData.major}
-                        onChange={onChange}
-                        required
-                        disabled={!isEmailVerified}
-                    />
-                    <datalist id="major">
-                        <option value="전기전자공학과" />
-                        <option value="스마트전기전자공학과" />
-                        <option value="기계공학과" />
-                        <option value="스마트기계공학과" />
-                        <option value="스마트소프트웨어학과" />
-                    </datalist>
-                </label>
+                    <label className="form-label">
+                        이름
+                        <input
+                            name="name"
+                            type="text"
+                            className={!isEmailVerified ? "input-soft" : "form-input"}
+                            placeholder="이름 (예: 김연암)"
+                            onChange={onChange}
+                            disabled={!isEmailVerified}
+                            required
+                        />
+                    </label>
 
-                <label>
-                    전화번호
-                    <input
-                        name="phoneNumber"
-                        type="text"
-                        placeholder="전화번호"
-                        onChange={onChange}
-                        required
-                        disabled={!isEmailVerified}
-                    />
-                </label>
-                <label>
-                    생년월일
-                    <input
-                        name="birthdate"
-                        type="date"
-                        placeholder="생년월일"
-                        onChange={onChange}
-                        required
-                        disabled={!isEmailVerified}
-                    />
-                </label>
-                <label>
-                    비밀번호
-                    <input
-                        name="password"
-                        type="password"
-                        placeholder="비밀번호 (8자 이상)"
-                        onChange={onChange}
-                        required
-                        disabled={!isEmailVerified}
-                    />
-                </label>
+                    <label className="form-label">
+                        학과
+                        <input
+                            name="major"
+                            type="text"
+                            list="major"
+                            className={!isEmailVerified ? "input-soft" : "form-input"}
+                            placeholder="학과 (예: 스마트소프트웨어학과)"
+                            value={formData.major}
+                            onChange={onChange}
+                            required
+                            disabled={!isEmailVerified}
+                        />
+                        <datalist id="major">
+                            <option value="전기전자공학과" />
+                            <option value="스마트전기전자공학과" />
+                            <option value="기계공학과" />
+                            <option value="스마트기계공학과" />
+                            <option value="스마트소프트웨어학과" />
+                        </datalist>
+                    </label>
 
-                <button type="submit" disabled={!isEmailVerified}>
-                    회원가입 완료
-                </button>
-            </form>
+                    <label className="form-label">
+                        전화번호
+                        <input
+                            name="phoneNumber"
+                            type="text"
+                            className={!isEmailVerified ? "input-soft" : "form-input"}
+                            placeholder="전화번호"
+                            onChange={onChange}
+                            required
+                            disabled={!isEmailVerified}
+                        />
+                    </label>
+
+                    <label className="form-label">
+                        생년월일
+                        <input
+                            name="birthdate"
+                            type="date"
+                            className={!isEmailVerified ? "input-soft" : "form-input"}
+                            placeholder="생년월일"
+                            onChange={onChange}
+                            required
+                            disabled={!isEmailVerified}
+                        />
+                    </label>
+
+                    <label className="form-label">
+                        비밀번호
+                        <input
+                            name="password"
+                            type="password"
+                            className={!isEmailVerified ? "input-soft" : "form-input"}
+                            placeholder="비밀번호 (8자 이상)"
+                            onChange={onChange}
+                            required
+                            disabled={!isEmailVerified}
+                        />
+                    </label>
+
+                    <button
+                        type="submit"
+                        className={!isEmailVerified ? "input-soft" : "btn btn-primary btn-full"}
+                        style={!isEmailVerified ? { cursor: "default" } : { cursor: "pointer" }}
+                        disabled={!isEmailVerified}
+                    >
+                        회원가입 완료
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

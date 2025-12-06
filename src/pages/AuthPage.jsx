@@ -7,6 +7,8 @@ import ChangePwForm from "../components/auth/ChangePwForm";
 import ResetPwForm from "../components/auth/ResetPwForm";
 import Not from "./Not";
 
+import "./AuthPage.css";
+
 function AuthPage() {
     const [formData, setFormData] = useState({});
 
@@ -63,7 +65,39 @@ function AuthPage() {
         }
     };
 
-    return <div>{renderForm()}</div>;
+    return (
+        <div className="auth-page">
+            <div className="auth-container">
+                <div className="auth-left">
+                    <div className="auth-branding">
+                        <div className="logo-large">
+                            <div className="logo-icon-large">Y</div>
+                        </div>
+                        <h1 className="auth-brand-title">YonamStudy</h1>
+                        <p className="auth-brand-description">
+                            연암공과대학교 학생들을 위한 스터디 그룹 매칭 플랫폼
+                        </p>
+                        <div className="auth-features">
+                            <div className="feature-item">
+                                <div className="feature-icon">✓</div>
+                                <span>다양한 스터디 그룹</span>
+                            </div>
+                            <div className="feature-item">
+                                <div className="feature-icon">✓</div>
+                                <span>실시간 채팅</span>
+                            </div>
+                            <div className="feature-item">
+                                <div className="feature-icon">✓</div>
+                                <span>효율적인 일정 관리</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {renderForm()}
+            </div>
+        </div>
+    );
 }
 
 export default AuthPage;
