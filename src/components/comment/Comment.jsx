@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import CommentInput from "./CommentInput"; // 댓글 입력 컴포넌트
-import CommentList from "./CommentList"; // 댓글 목록 컴포넌트
+import CommentForm from "./CommentForm";
+import CommentItem from "./CommentItem";
 
-function Comment({ groupId, group, user }) {
-    // 댓글들을 저장하는 상태 (배열)
+import { GoComment } from "react-icons/go";
+
+import "./Comment.css";
+
+function Comment({ groupId, user }) {
     const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
+
+    const [activeMenuId, setActiveMenuId] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!groupId) return;
@@ -15,61 +24,48 @@ function Comment({ groupId, group, user }) {
             const res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`
             );
-            setComments(res.data);
+            setComments(res.data.comments);
         };
 
         fetchHistory();
     }, []);
 
-    // 댓글 추가 함수
-    const handleAddComment = async (content) => {
-        try {
-            const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`,
-                { content: content, userId: user.userId }
-            );
-            setComments([...comments, res.data]);
-
-            alert("댓글이 등록되었습니다.");
-        } catch (error) {
-            console.error("댓글 등록 실패", error);
-        }
-    };
-
     // 댓글 수정 함수
-    const handleEditComment = async (commentId, content) => {
+    const handleUpdateComment = async (commentId, content) => {
         try {
             const res = await axios.put(
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
-                { content: content },
-                {
-                    params: {
-                        userId: user.userId,
-                    },
-                }
+                { content: content, userId: user.userId }
             );
-            setComments((prevComments) =>
-                prevComments.map((comment) => (comment._id === commentId ? res.data : comment))
+
+            setComments((prev) =>
+                prev.map((comment) =>
+                    comment._id === commentId ? res.data.updatedComment : comment
+                )
             );
+
+            alert(res.data.message);
         } catch (error) {
             console.error("댓글 수정 실패", error);
         }
     };
 
     // 댓글 삭제 함수
-    const handleDeleteComment = async (commentId) => {
+    const handleDeleteComment = async (commentId, userId) => {
         try {
             const res = await axios.delete(
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
                 {
-                    params: {
-                        userId: user.userId,
+                    data: {
+                        userId: userId,
                     },
                 }
             );
 
-            setComments((prevComments) =>
-                prevComments.filter((comment) => comment._id !== commentId)
+            setComments((prev) =>
+                prev.map((comment) =>
+                    comment._id === commentId ? res.data.deletedComment : comment
+                )
             );
 
             alert(res.data.message);
@@ -78,19 +74,73 @@ function Comment({ groupId, group, user }) {
         }
     };
 
+    const handlePostComment = async () => {
+        if (!newComment.trim()) return;
+
+        try {
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`,
+                { userId: user.userId, content: newComment }
+            );
+
+            alert(res.data.message);
+            setComments([res.data.newComment, ...comments]);
+            setNewComment("");
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
-        <div>
-            {/* 댓글 입력창 */}
-            {user && <CommentInput user={user} onAddComment={handleAddComment} />}
-            {/* 댓글 목록 (수정/삭제 기능 포함) */}
-            <CommentList
-                user={user}
-                group={group}
-                comments={comments}
-                onEditComment={handleEditComment}
-                onDeleteComment={handleDeleteComment}
-            />
-        </div>
+        <section className="comment-section">
+            <h2>댓글 ({comments.length})</h2>
+
+            {/* 메인 댓글 작성 폼 */}
+            {user ? (
+                <CommentForm
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onSubmit={handlePostComment}
+                    user={user}
+                />
+            ) : (
+                <div className="comment-login-prompt">
+                    <p>댓글을 작성하려면 로그인이 필요합니다.</p>
+                    <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => navigate("/auth/login")}
+                    >
+                        로그인하기
+                    </button>
+                </div>
+            )}
+
+            {/* 댓글 목록 */}
+            <div className="comments-list">
+                {comments.length === 0 ? (
+                    <div className="no-comments">
+                        <GoComment size={48} />
+                        <p>아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
+                    </div>
+                ) : (
+                    comments.map((comment) => (
+                        <CommentItem
+                            key={comment._id}
+                            comment={comment}
+                            user={user}
+                            onUpdate={handleUpdateComment}
+                            onDelete={handleDeleteComment}
+                            isOpen={activeMenuId === comment._id}
+                            onToggleMenu={() =>
+                                setActiveMenuId((prev) =>
+                                    prev === comment._id ? null : comment._id
+                                )
+                            }
+                        />
+                    ))
+                )}
+            </div>
+        </section>
     );
 }
 

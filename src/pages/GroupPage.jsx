@@ -4,7 +4,7 @@ import axios from "axios";
 
 import useLocalStorage from "../hooks/useLocalStorage";
 
-import Loading from "../components/Loading/Loading";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 import Comment from "../components/comment/Comment";
 
 import { GoPeople } from "react-icons/go";
@@ -69,7 +69,7 @@ function GroupPage() {
     }, []);
 
     if (!group) {
-        return <Loading message="스터디 그룹 정보를 불러오고 있습니다..." />;
+        return <LoadingSpinner message="스터디 그룹 정보를 불러오고 있습니다..." />;
     }
 
     const handleJoined = () => {
@@ -173,7 +173,7 @@ function GroupPage() {
                     case "고급":
                         break;
                     default:
-                        throw "난이도 초급, 중급, 고급 중 한 개만 작성해주세요.";
+                        throw "난이도 초급, 중급, 고급 중 한가지만 입력해주세요";
                 }
             }
             if (!formData.maxMembers) throw "최대 인원 수는 반드시 있어야합니다.";
@@ -371,6 +371,7 @@ function GroupPage() {
                                         type="text"
                                         className="btn btn-primary btn-full"
                                         onClick={handleAddTag}
+                                        style={{ margin: 0 }}
                                     >
                                         추가
                                     </button>
@@ -464,7 +465,7 @@ function GroupPage() {
                                 </div>
                             ) : (
                                 <img
-                                    src={`${getImageUrl(group.groupImage)}`}
+                                    src={getImageUrl(group.groupImage)}
                                     alt="스터디그룹 이미지 미리보기"
                                     className="group-avatar"
                                 />
@@ -480,12 +481,14 @@ function GroupPage() {
                                     </button>
                                 ) : (
                                     <>
-                                        <button
-                                            className="btn btn-primary btn-full"
-                                            onClick={() => navigate(`/chat/${groupId}`)}
-                                        >
-                                            채팅
-                                        </button>
+                                        {isEditing ? null : (
+                                            <button
+                                                className="btn btn-primary btn-full"
+                                                onClick={() => navigate(`/chat/${groupId}`)}
+                                            >
+                                                채팅
+                                            </button>
+                                        )}
                                         {user?.userId !== group?.groupLeader?._id ? (
                                             <button
                                                 className="btn btn-outline btn-full"
@@ -504,7 +507,7 @@ function GroupPage() {
                                 스터디 그룹 리더
                                 {user?.userId === group.groupLeader?._id &&
                                     (isEditing ? (
-                                        <div>
+                                        <div style={{ display: "flex", gap: "0.5rem" }}>
                                             <button
                                                 type="button"
                                                 className="btn btn-outline btn-full"
@@ -514,6 +517,7 @@ function GroupPage() {
                                                     setPreview(getImageUrl(group.groupImage));
                                                     setFile(null);
                                                 }}
+                                                style={{ margin: 0 }}
                                             >
                                                 취소
                                             </button>
@@ -522,22 +526,26 @@ function GroupPage() {
                                                 type="button"
                                                 className="btn btn-primary btn-full"
                                                 onClick={handleUpdateGroup}
+                                                style={{ margin: 0 }}
                                             >
                                                 저장
                                             </button>
                                         </div>
                                     ) : (
-                                        <button
-                                            type="button"
-                                            className="btn btn-primary btn-full"
-                                            onClick={() => {
-                                                handleSetFormData();
-                                                setPreview(getImageUrl(group.groupImage));
-                                                setIsEditing(true);
-                                            }}
-                                        >
-                                            수정
-                                        </button>
+                                        <div style={{ display: "flex" }}>
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary btn-full"
+                                                onClick={() => {
+                                                    handleSetFormData();
+                                                    setPreview(getImageUrl(group.groupImage));
+                                                    setIsEditing(true);
+                                                }}
+                                                style={{ margin: 0 }}
+                                            >
+                                                수정
+                                            </button>
+                                        </div>
                                     ))}
                             </h3>
                             <div className="leader-info">
@@ -578,6 +586,7 @@ function GroupPage() {
                                                     }
                                                     onClick={() => handleDayToggle(day)}
                                                     style={{
+                                                        margin: 0,
                                                         padding: "10px 0",
                                                         width: "37px",
                                                         height: "35px",
@@ -663,21 +672,20 @@ function GroupPage() {
                         </div>
 
                         <div className="sidebar-actions">
-                            {group.groupLeader?._id === user?.userId ? (
-                                <button
-                                    className="btn btn-secondary btn-full"
-                                    onClick={handleDeleteGroup}
-                                >
-                                    그룹 삭제하기
-                                </button>
-                            ) : null}
+                            {group.groupLeader?._id === user?.userId
+                                ? isEditing && (
+                                      <button
+                                          className="btn btn-secondary btn-full"
+                                          onClick={handleDeleteGroup}
+                                      >
+                                          그룹 삭제하기
+                                      </button>
+                                  )
+                                : null}
                         </div>
                     </aside>
+                    <Comment groupId={groupId} user={user} />
                 </div>
-            </div>
-
-            <div className="container">
-                <Comment groupId={groupId} group={group} user={user} />
             </div>
         </div>
     );

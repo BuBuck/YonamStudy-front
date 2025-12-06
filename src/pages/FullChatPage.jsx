@@ -38,10 +38,16 @@ function FullChatPage() {
             try {
                 const [notiRes, lastMsgRes] = await Promise.all([
                     axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/notification`, {
-                        params: { userId: user.userId || user._id, group: user.group.join(",") },
+                        params: {
+                            userId: user.userId || user._id,
+                            group: user.group.map((g) => g._id).join(","),
+                        },
                     }),
                     axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/lastMessages`, {
-                        params: { userId: user.userId || user._id, group: user.group.join(",") },
+                        params: {
+                            userId: user.userId || user._id,
+                            group: user.group.map((g) => g._id).join(","),
+                        },
                     }),
                 ]);
 
