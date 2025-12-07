@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-
 import { GoCalendar, GoPeople, GoCheck } from "react-icons/go";
 import { RxCross2 } from "react-icons/rx";
-
 import Modal from "../../Modal/Modal";
-
 import "./ApplicationListModal.css";
 
 const ApplicationListModal = ({
@@ -16,8 +13,9 @@ const ApplicationListModal = ({
     onReject,
 }) => {
     const [selectedApplication, setSelectedApplication] = useState(null);
-    const [filter, setFilter] = useState("all"); // all, pending, approved, rejected
+    const [filter, setFilter] = useState("all");
 
+    // 필터링 로직 유지
     const filteredApplications = applications.filter((app) => {
         if (filter === "all") return true;
         return app.status === filter;
@@ -31,36 +29,9 @@ const ApplicationListModal = ({
         setSelectedApplication(null);
     };
 
-    const handleApprove = async (applicationId) => {
-        try {
-            await onApprove(applicationId);
-            setSelectedApplication(null);
-        } catch (error) {
-            console.error("승인 실패:", error);
-            alert("승인에 실패했습니다.");
-        }
-    };
-
-    const handleReject = async (applicationId) => {
-        try {
-            await onReject(applicationId);
-            setSelectedApplication(null);
-        } catch (error) {
-            console.error("거절 실패:", error);
-            alert("거절에 실패했습니다.");
-        }
-    };
-
-    const getStatusBadge = (status) => {
-        const badges = {
-            pending: { label: "대기중", className: "status-pending" },
-            approved: { label: "승인", className: "status-approved" },
-            rejected: { label: "거절", className: "status-rejected" },
-        };
-        return badges[status] || badges.pending;
-    };
-
+    // [수정 1] 날짜 포맷 함수 안전하게 변경
     const formatDate = (dateString) => {
+        if (!dateString) return "-";
         const date = new Date(dateString);
         return date.toLocaleDateString("ko-KR", {
             year: "numeric",
@@ -71,6 +42,30 @@ const ApplicationListModal = ({
         });
     };
 
+    // [수정 2] 답변 찾는 헬퍼 함수 추가 (배열에서 찾기)
+    const findAnswer = (appAnswers, questionId) => {
+        if (!appAnswers) return null;
+
+        // 만약 백엔드가 객체 { "id": "val" }로 준다면:
+        if (!Array.isArray(appAnswers)) {
+            return appAnswers[questionId];
+        }
+
+        // 만약 백엔드가 배열 [{ questionId: "...", answer: "..." }]로 준다면:
+        const found = appAnswers.find((a) => a.questionId === questionId);
+        return found ? found.answer : null;
+    };
+
+    // [수정 3] 상태 뱃지 함수 유지
+    const getStatusBadge = (status) => {
+        const badges = {
+            pending: { label: "대기중", className: "status-pending" },
+            approved: { label: "승인", className: "status-approved" },
+            rejected: { label: "거절", className: "status-rejected" },
+        };
+        return badges[status] || badges.pending;
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -79,8 +74,9 @@ const ApplicationListModal = ({
             size="large"
         >
             {!selectedApplication ? (
+                /* === 목록 뷰 === */
                 <div className="application-list-container">
-                    {/* Filter Tabs */}
+                    {/* 탭 버튼들 (기존 코드 유지) */}
                     <div className="filter-tabs">
                         <button
                             className={`filter-tab ${filter === "all" ? "active" : ""}`}
@@ -108,7 +104,6 @@ const ApplicationListModal = ({
                         </button>
                     </div>
 
-                    {/* Applications List */}
                     <div className="applications-list">
                         {filteredApplications.length === 0 ? (
                             <div className="empty-applications">
@@ -117,6 +112,12 @@ const ApplicationListModal = ({
                         ) : (
                             filteredApplications.map((application) => {
                                 const statusBadge = getStatusBadge(application.status);
+
+                                // [수정 4] 데이터 접근 경로 수정 (applicant.name, createdAt 등)
+                                const applicantName = application.applicant?.name || "알 수 없음";
+                                const submittedDate =
+                                    application.createdAt || application.submittedAt;
+
                                 return (
                                     <div
                                         key={application._id}
@@ -126,15 +127,30 @@ const ApplicationListModal = ({
                                         <div className="application-header">
                                             <div className="applicant-info">
                                                 <div className="applicant-avatar">
-                                                    <GoPeople size={24} />
+                                                    {/* 프로필 이미지가 있다면 표시, 없으면 아이콘 */}
+                                                    {application.applicant?.userProfile ? (
+                                                        <img
+                                                            src={`${
+                                                                import.meta.env.VITE_BACKEND_URL
+                                                            }${application.applicant.userProfile}`}
+                                                            alt="profile"
+                                                            style={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                borderRadius: "50%",
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <GoPeople size={24} />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="applicant-name">
-                                                        {application.applicantName}
+                                                        {applicantName}
                                                     </div>
                                                     <div className="application-date">
                                                         <GoCalendar size={14} />
-                                                        {formatDate(application.submittedAt)}
+                                                        {formatDate(submittedDate)}
                                                     </div>
                                                 </div>
                                             </div>
@@ -144,30 +160,6 @@ const ApplicationListModal = ({
                                                 {statusBadge.label}
                                             </span>
                                         </div>
-                                        <div className="application-preview">
-                                            {Object.entries(application.answers)
-                                                .slice(0, 2)
-                                                .map(([qId, answer]) => {
-                                                    const question = applicationForm.questions.find(
-                                                        (q) => q._id === qId
-                                                    );
-                                                    return question ? (
-                                                        <div key={qId} className="answer-preview">
-                                                            <span className="answer-question">
-                                                                {question.question}:
-                                                            </span>
-                                                            <span className="answer-text">
-                                                                {answer.length > 50
-                                                                    ? `${answer.substring(
-                                                                          0,
-                                                                          50
-                                                                      )}...`
-                                                                    : answer}
-                                                            </span>
-                                                        </div>
-                                                    ) : null;
-                                                })}
-                                        </div>
                                     </div>
                                 );
                             })
@@ -175,23 +167,44 @@ const ApplicationListModal = ({
                     </div>
                 </div>
             ) : (
+                /* === 상세 뷰 === */
                 <div className="application-detail-container">
-                    {/* Back Button */}
                     <button className="btn btn-secondary btn-sm" onClick={handleBack}>
                         ← 목록으로
                     </button>
 
-                    {/* Applicant Info */}
                     <div className="applicant-detail-card">
                         <div className="applicant-avatar-large">
-                            <GoPeople size={48} />
+                            {selectedApplication.applicant?.userProfile ? (
+                                <img
+                                    src={`${import.meta.env.VITE_BACKEND_URL}${
+                                        selectedApplication.applicant.userProfile
+                                    }`}
+                                    alt="profile"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        borderRadius: "50%",
+                                        objectFit: "cover",
+                                    }}
+                                />
+                            ) : (
+                                <GoPeople size={48} />
+                            )}
                         </div>
                         <div>
-                            <h3>{selectedApplication.applicantName}</h3>
-                            <p className="applicant-email">{selectedApplication.applicantEmail}</p>
+                            {/* [수정 5] 상세 정보에서도 applicant 객체 내부 접근 */}
+                            <h3>{selectedApplication.applicant?.name || "이름 없음"}</h3>
+                            <p className="applicant-email">
+                                {selectedApplication.applicant?.email || "이메일 없음"}
+                            </p>
                             <div className="application-date">
                                 <GoCalendar size={14} />
-                                신청일: {formatDate(selectedApplication.submittedAt)}
+                                {/* [수정 6] 날짜 필드 createdAt 우선 사용 */}
+                                신청일:{" "}
+                                {formatDate(
+                                    selectedApplication.createdAt || selectedApplication.submittedAt
+                                )}
                             </div>
                         </div>
                         <span
@@ -203,13 +216,16 @@ const ApplicationListModal = ({
                         </span>
                     </div>
 
-                    {/* Answers */}
                     <div className="answers-section">
                         <h4>신청서 답변</h4>
                         {applicationForm.questions.map((question, index) => {
-                            const answer = selectedApplication.answers[question._id];
+                            // [수정 7] 답변 찾아오는 로직 변경 (배열 대응)
+                            // 질문의 ID가 _id인지 id인지 확인
+                            const qId = question._id || question.id;
+                            const answerText = findAnswer(selectedApplication.answers, qId);
+
                             return (
-                                <div key={question._id} className="answer-item">
+                                <div key={qId} className="answer-item">
                                     <div className="answer-question-label">
                                         {index + 1}. {question.question}
                                         {question.required && (
@@ -217,29 +233,31 @@ const ApplicationListModal = ({
                                         )}
                                     </div>
                                     <div className="answer-content">
-                                        {answer || <span className="no-answer">(답변 없음)</span>}
+                                        {/* 답변이 있으면 출력, 없으면 안내 문구 */}
+                                        {answerText ? (
+                                            answerText
+                                        ) : (
+                                            <span className="no-answer">(답변 없음)</span>
+                                        )}
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* Action Buttons */}
                     {selectedApplication.status === "pending" && (
                         <div className="application-actions">
                             <button
                                 className="btn btn-outline btn-danger"
-                                onClick={() => handleReject(selectedApplication._id)}
+                                onClick={() => onReject(selectedApplication._id)}
                             >
-                                <RxCross2 size={20} />
-                                거절
+                                <RxCross2 size={20} /> 거절
                             </button>
                             <button
                                 className="btn btn-primary"
-                                onClick={() => handleApprove(selectedApplication._id)}
+                                onClick={() => onApprove(selectedApplication._id)}
                             >
-                                <GoCheck size={20} />
-                                승인
+                                <GoCheck size={20} /> 승인
                             </button>
                         </div>
                     )}
