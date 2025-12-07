@@ -1,0 +1,154 @@
+.not-found-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8f0f0 0%, #f7fafc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.not-found-container {
+    max-width: 900px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.not-found-content {
+    text-align: left;
+}
+
+.not-found-title {
+    font-size: 120px;
+    color: #ff6b6b;
+    margin: 0 0 16px 0;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.not-found-subtitle {
+    font-size: 32px;
+    color: #4a5568;
+    margin: 0 0 16px 0;
+    font-weight: 700;
+}
+
+.not-found-description {
+    font-size: 16px;
+    color: #718096;
+    margin: 0 0 40px 0;
+    line-height: 1.6;
+}
+
+.not-found-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.btn-home,
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-home {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-home:hover {
+    background: #ee5a52;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.btn-back {
+    background: white;
+    color: #4a5568;
+    border: 2px solid #e8f0f0;
+}
+
+.btn-back:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+}
+
+.not-found-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.not-found-illustration svg {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .not-found-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .not-found-content {
+        text-align: center;
+    }
+
+    .not-found-title {
+        font-size: 80px;
+    }
+
+    .not-found-subtitle {
+        font-size: 24px;
+    }
+
+    .not-found-description {
+        font-size: 14px;
+    }
+
+    .not-found-actions {
+        justify-content: center;
+    }
+
+    .not-found-illustration {
+        order: -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .not-found-title {
+        font-size: 64px;
+    }
+
+    .not-found-subtitle {
+        font-size: 20px;
+    }
+
+    .not-found-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-home,
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+    }
+}

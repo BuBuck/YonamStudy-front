@@ -14,7 +14,7 @@ import GroupPage from "./pages/GroupPage";
 import CreateGroupPage from "./pages/CreateGroupPage";
 import DashboardPage from "./pages/DashboardPage";
 import FullChatPage from "./pages/FullChatPage";
-import Not from "./pages/Not";
+import Not from "./pages/NotFoundPage";
 
 import { AuthContext } from "./contexts/auth/AuthContext";
 
@@ -84,6 +84,7 @@ function App() {
                         path="/dashboard/:studentId"
                         element={
                             <ProtectedRoute>
+                                <Header />
                                 <DashboardPage />
                             </ProtectedRoute>
                         }
