@@ -140,7 +140,7 @@ const CreateFormModal = ({ isOpen, onClose, onSave, existingForm }) => {
                         </div>
                     ) : (
                         questions.map((question, index) => (
-                            <div key={question.id} className="question-builder-card">
+                            <div key={question._id} className="question-builder-card">
                                 <div className="question-builder-header">
                                     <div className="question-drag-handle">
                                         <LuGripVertical size={20} />

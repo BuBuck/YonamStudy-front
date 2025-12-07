@@ -119,7 +119,7 @@ const ApplicationListModal = ({
                                 const statusBadge = getStatusBadge(application.status);
                                 return (
                                     <div
-                                        key={application.id}
+                                        key={application._id}
                                         className="application-item"
                                         onClick={() => handleViewDetails(application)}
                                     >
@@ -149,7 +149,7 @@ const ApplicationListModal = ({
                                                 .slice(0, 2)
                                                 .map(([qId, answer]) => {
                                                     const question = applicationForm.questions.find(
-                                                        (q) => q.id === qId
+                                                        (q) => q._id === qId
                                                     );
                                                     return question ? (
                                                         <div key={qId} className="answer-preview">
@@ -207,9 +207,9 @@ const ApplicationListModal = ({
                     <div className="answers-section">
                         <h4>신청서 답변</h4>
                         {applicationForm.questions.map((question, index) => {
-                            const answer = selectedApplication.answers[question.id];
+                            const answer = selectedApplication.answers[question._id];
                             return (
-                                <div key={question.id} className="answer-item">
+                                <div key={question._id} className="answer-item">
                                     <div className="answer-question-label">
                                         {index + 1}. {question.question}
                                         {question.required && (
@@ -229,14 +229,14 @@ const ApplicationListModal = ({
                         <div className="application-actions">
                             <button
                                 className="btn btn-outline btn-danger"
-                                onClick={() => handleReject(selectedApplication.id)}
+                                onClick={() => handleReject(selectedApplication._id)}
                             >
                                 <RxCross2 size={20} />
                                 거절
                             </button>
                             <button
                                 className="btn btn-primary"
-                                onClick={() => handleApprove(selectedApplication.id)}
+                                onClick={() => handleApprove(selectedApplication._id)}
                             >
                                 <GoCheck size={20} />
                                 승인

@@ -23,7 +23,7 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
         e.preventDefault();
 
         // 안전하게 정의된 questions 변수 사용
-        const unansweredRequired = questions.filter((q) => q.required && !answers[q.id]);
+        const unansweredRequired = questions.filter((q) => q.required && !answers[q._id]);
 
         if (unansweredRequired.length > 0) {
             alert("모든 필수 질문에 답변해주세요.");
@@ -54,8 +54,8 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
                     <input
                         type="text"
                         className="form-input"
-                        value={answers[question.id] || ""}
-                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        value={answers[question._id] || ""}
+                        onChange={(e) => handleAnswerChange(question._id, e.target.value)}
                         placeholder="답변을 입력하세요"
                         required={question.required}
                     />
@@ -64,8 +64,8 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
                 return (
                     <textarea
                         className="form-textarea"
-                        value={answers[question.id] || ""}
-                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        value={answers[question._id] || ""}
+                        onChange={(e) => handleAnswerChange(question._id, e.target.value)}
                         placeholder="답변을 입력하세요"
                         rows="4"
                         required={question.required}
@@ -75,8 +75,8 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
                 return (
                     <select
                         className="form-select"
-                        value={answers[question.id] || ""}
-                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        value={answers[question._id] || ""}
+                        onChange={(e) => handleAnswerChange(question._id, e.target.value)}
                         required={question.required}
                     >
                         <option value="">선택하세요</option>
@@ -94,11 +94,11 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
                             <label key={idx} className="radio-label">
                                 <input
                                     type="radio"
-                                    name={question.id}
+                                    name={question._id}
                                     value={option}
-                                    checked={answers[question.id] === option}
+                                    checked={answers[question._id] === option}
                                     onChange={(e) =>
-                                        handleAnswerChange(question.id, e.target.value)
+                                        handleAnswerChange(question._id, e.target.value)
                                     }
                                     required={question.required}
                                 />
@@ -142,7 +142,7 @@ const ApplicationFormModal = ({ isOpen, onClose, groupTitle, applicationForm, on
                     {/* [수정 3] questions가 있을 때만 맵핑, 없으면 안내 문구 표시 */}
                     {questions.length > 0 ? (
                         questions.map((question, index) => (
-                            <div key={question.id} className="form-question">
+                            <div key={question._id} className="form-question">
                                 <label className="question-label">
                                     {index + 1}. {question.question}
                                     {question.required && <span className="required-mark">*</span>}
