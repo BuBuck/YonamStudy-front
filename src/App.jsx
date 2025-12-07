@@ -78,7 +78,6 @@ function App() {
                             <ProtectedRoute>
                                 <Header isAuthenticated={isAuthenticated} user={user} />
                                 <CreateGroupPage />
-                                <Footer />
                             </ProtectedRoute>
                         }
                     />
@@ -108,6 +107,16 @@ function App() {
                             <ProtectedRoute>
                                 <FullChatPage />
                             </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/search"
+                        element={
+                            <>
+                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <SearchPage />
+                            </>
                         }
                     />
                     <Route exact path="/*" element={<NotFoundPage />} />
