@@ -22,6 +22,9 @@ function ChatDock() {
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?.userId || user?._id;
 
+    // [수정 1] user.group이 객체 배열인지 문자열 배열인지 모를 때 안전하게 ID 추출
+    const myGroupIds = user?.group ? user.group.map((g) => g._id || g) : [];
+
     // --- State ---
     const [isOpen, setIsOpen] = useState(false);
     const [groups, setGroups] = useState([]);
@@ -39,38 +42,32 @@ function ChatDock() {
     // 1. 초기 데이터 로드 & 소켓 그룹 관리 (통합 및 순서 수정)
     // -----------------------------------------------------------------------
     useEffect(() => {
-        if (!user || !user.group) return;
+        if (!user) return;
 
-        // [수정 1] 리스너 함수 정의 (그룹 목록 처리)
+        // 리스너 함수 정의
         const handleGroups = (allGroups) => {
             setGroups(allGroups);
-
-            if (user && user.group) {
-                const myGroupIds = user.group.map((g) => g._id);
+            if (myGroupIds.length > 0) {
                 const filtered = allGroups.filter((g) => myGroupIds.includes(g._id));
                 setMyGroups(filtered);
             }
         };
 
-        // [수정 2] 리스너 먼저 등록! (가장 중요)
+        // [수정 2] 리스너 먼저 등록!
         socket.on("groups", handleGroups);
 
         // [수정 3] 리스너 등록 후 데이터 요청
         if (socket.connected) {
             socket.emit("groups");
+            if (myGroupIds.length > 0) {
+                socket.emit("joinGroups", myGroupIds);
+            }
         }
 
-        // 소켓 Room 입장
-        const myGroupIds = user.group.map((g) => g._id);
-        if (myGroupIds.length > 0 && socket.connected) {
-            socket.emit("joinGroups", myGroupIds, (res) => {
-                if (res && res.ok) console.log("Socket: 내 스터디 그룹 채팅방 입장 완료");
-            });
-        }
-
-        // REST API: 안 읽은 메시지 & 마지막 메시지 가져오기
+        // REST API: 데이터 가져오기
         const fetchData = async () => {
             try {
+                if (myGroupIds.length === 0) return;
                 const groupIdsStr = myGroupIds.join(",");
 
                 const [notiRes, lastMsgRes] = await Promise.all([
@@ -89,9 +86,16 @@ function ChatDock() {
                     setTotalUnread(notiRes.data.total);
                 }
                 if (lastMsgRes.data) {
-                    // ChatDock에서는 목록에 "나:" 표시가 필수가 아니라면 raw data 그대로 써도 무방합니다.
-                    // 필요하다면 FullChatPage처럼 가공 로직을 추가하세요.
-                    setLastMessageMap(lastMsgRes.data);
+                    // ChatDock 목록 표시용 데이터 가공 (FullChatPage와 동일하게 안전 처리)
+                    const rawData = lastMsgRes.data;
+                    const processedData = {};
+                    Object.keys(rawData).forEach((gid) => {
+                        const msgObj = rawData[gid];
+                        const senderId = msgObj.sender?._id || msgObj.sender; // 안전한 ID 추출
+                        const isMe = String(senderId) === String(userId);
+                        processedData[gid] = { ...msgObj, isMe };
+                    });
+                    setLastMessageMap(processedData);
                 }
             } catch (error) {
                 console.warn("⚠️ 초기 데이터 로드 실패:", error.message);
@@ -100,7 +104,7 @@ function ChatDock() {
 
         fetchData();
 
-        // 그룹 생성 이벤트 리스너
+        // 그룹 생성 이벤트
         const removeListener = onGroupCreated((newGroup) => {
             setGroups((prev) => [...prev, newGroup]);
             if (socket.connected) {
@@ -113,44 +117,46 @@ function ChatDock() {
             }));
         });
 
-        // clean-up
         return () => {
-            socket.off("groups", handleGroups); // 리스너 해제
+            socket.off("groups", handleGroups);
             removeListener();
         };
-    }, [userId]); // 의존성: userId
+    }, [userId]);
 
     // -----------------------------------------------------------------------
-    // 2. 메시지 수신 전용 useEffect
+    // 2. 메시지 수신 (실시간)
     // -----------------------------------------------------------------------
     useEffect(() => {
-        // [수정 4] handleGroups 관련 로직은 위로 이동했으므로 제거하고, 메시지 수신만 남깁니다.
-
         const handleReceivedMessage = (newMessage) => {
+            // [수정 4] sender 안전하게 처리
+            const senderId = newMessage.sender?._id || newMessage.sender;
+            const isMe = String(senderId) === String(userId);
+
             // 마지막 메시지 갱신
             setLastMessageMap((prev) => ({
                 ...prev,
                 [newMessage.group]: {
                     message: newMessage.message,
                     time: newMessage.createdAt,
+                    sender: newMessage.sender,
+                    isMe: isMe,
                 },
             }));
 
-            // 현재 보고 있는 방이면 메시지 추가 (isMe 계산 포함)
+            // 현재 보고 있는 방이면 메시지 추가
             if (selectedGroup && selectedGroup._id === newMessage.group) {
                 setCurrentMessages((prev) => [
                     ...prev,
                     {
                         ...newMessage,
-                        isMe: String(newMessage.sender._id) === String(userId),
+                        isMe: isMe,
                     },
                 ]);
                 scrollToBottom();
             }
             // 다른 방이면 안 읽은 배지 증가
             else {
-                // 내가 보낸 메시지가 아닐 때만 카운트
-                if (String(newMessage.sender._id) !== String(userId)) {
+                if (!isMe) {
                     setUnreadMap((prev) => ({
                         ...prev,
                         [newMessage.group]: (prev[newMessage.group] || 0) + 1,
@@ -168,35 +174,20 @@ function ChatDock() {
     }, [selectedGroup, userId]);
 
     // -----------------------------------------------------------------------
-    // 3. ESC 키로 닫기
-    // -----------------------------------------------------------------------
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleEsc = (e) => {
-            if (e.keyCode === 27) {
-                setIsOpen(false);
-                setSelectedGroup(null);
-            }
-        };
-        window.addEventListener("keydown", handleEsc);
-
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [isOpen]);
-
-    // -----------------------------------------------------------------------
-    // 4. 그룹 선택 시 메시지 로드
+    // 3. 그룹 선택 시 메시지 로드 (FullChatPage와 동일한 안전 로직 적용)
     // -----------------------------------------------------------------------
     useEffect(() => {
         if (!selectedGroup) return;
 
         const loadMessages = async () => {
             try {
-                // 읽음 처리
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/read`, {
-                    groupId: selectedGroup._id,
-                    userId: userId,
-                });
+                // 읽음 처리 (에러 무시)
+                await axios
+                    .put(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/read`, {
+                        groupId: selectedGroup._id,
+                        userId: userId,
+                    })
+                    .catch(() => {});
 
                 const readCount = unreadMap[selectedGroup._id] || 0;
                 setTotalUnread((prev) => Math.max(0, prev - readCount));
@@ -207,17 +198,17 @@ function ChatDock() {
                     `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${
                         selectedGroup._id
                     }/messages`,
-                    {
-                        headers: {
-                            userid: userId,
-                        },
-                    }
+                    { headers: { userid: userId } }
                 );
 
-                const formattedMessages = res.data.map((msg) => ({
-                    ...msg,
-                    isMe: String(msg.sender._id) === String(userId),
-                }));
+                // [수정 5] 불러온 메시지의 sender 안전 처리
+                const formattedMessages = res.data.map((msg) => {
+                    const senderId = msg.sender?._id || msg.sender;
+                    return {
+                        ...msg,
+                        isMe: String(senderId) === String(userId),
+                    };
+                });
 
                 setCurrentMessages(formattedMessages);
                 scrollToBottom();
@@ -227,10 +218,25 @@ function ChatDock() {
         };
 
         loadMessages();
-    }, [selectedGroup]);
+    }, [selectedGroup, userId]);
 
     // -----------------------------------------------------------------------
-    // 5. 이벤트 핸들러
+    // ESC 키로 닫기
+    // -----------------------------------------------------------------------
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e) => {
+            if (e.keyCode === 27) {
+                setIsOpen(false);
+                setSelectedGroup(null);
+            }
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [isOpen]);
+
+    // -----------------------------------------------------------------------
+    // 이벤트 핸들러
     // -----------------------------------------------------------------------
     const scrollToBottom = () => {
         setTimeout(() => {
@@ -245,13 +251,8 @@ function ChatDock() {
         }
     };
 
-    const handleSelectGroup = (group) => {
-        setSelectedGroup(group);
-    };
-
-    const handleBackToList = () => {
-        setSelectedGroup(null);
-    };
+    const handleSelectGroup = (group) => setSelectedGroup(group);
+    const handleBackToList = () => setSelectedGroup(null);
 
     const handleExpandView = () => {
         if (selectedGroup) {
@@ -266,7 +267,6 @@ function ChatDock() {
     const handleSendMessage = (e) => {
         e.preventDefault();
         if (!inputMessage.trim() || !selectedGroup) return;
-
         socket.emit("sendMessage", inputMessage, userId, selectedGroup._id);
         setInputMessage("");
     };
@@ -277,11 +277,10 @@ function ChatDock() {
         return date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
     };
 
-    // 채팅 페이지에서는 표시하지 않음
     if (isChatPage) return null;
 
     // -----------------------------------------------------------------------
-    // 6. 렌더링
+    // 렌더링
     // -----------------------------------------------------------------------
 
     // 닫힌 상태
@@ -333,7 +332,6 @@ function ChatDock() {
                         {myGroups.map((group) => {
                             const lastMsgData = lastMessageMap[group._id] || {};
                             const unreadCount = unreadMap[group._id] || 0;
-
                             const imgUrl = group.groupImage
                                 ? `${import.meta.env.VITE_BACKEND_URL}${group.groupImage}`
                                 : "";
@@ -349,7 +347,6 @@ function ChatDock() {
                                         alt="그룹 이미지"
                                         className="chat-dock-avatar"
                                     />
-
                                     <div className="chat-dock-info">
                                         <div className="chat-dock-item-header">
                                             <span className="chat-dock-name">
