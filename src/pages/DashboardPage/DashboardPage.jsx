@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import UserInfo from "../../components/Dashboard/UserInfo";
-import MyGroupList from "../../components/Group/MyGroupList";
+import MyGroupList from "../../components/group/MyGroupList";
 
 import { GoSearch } from "react-icons/go";
 import { GoCommentDiscussion } from "react-icons/go";
