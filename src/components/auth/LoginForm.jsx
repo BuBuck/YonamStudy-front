@@ -6,7 +6,7 @@ import { AuthContext } from "../../contexts/auth/AuthContext";
 
 import "../../pages/AuthPage/AuthPage.css";
 
-function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
+function LoginForm({ setUser, formData, setFormData, onChange, errors, setErrors }) {
     const navigate = useNavigate();
 
     const { setIsAuthenticated } = useContext(AuthContext);
@@ -46,6 +46,7 @@ function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
                 alert(`환영합니다, ${res.data.user.name}님!`);
                 setFormData({});
                 setIsAuthenticated(true);
+                setUser(res.data.user);
                 navigate(-1, { replace: true });
             } catch (error) {
                 console.error(error);
@@ -69,6 +70,7 @@ function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
                                     name="studentId"
                                     type="text"
                                     placeholder="학번 (이메일 앞 8자리)"
+                                    value={formData.studentId || ""}
                                     onChange={onChange}
                                     className="form-input"
                                     required
@@ -83,6 +85,7 @@ function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
                                 name="password"
                                 type="password"
                                 placeholder="비밀번호"
+                                value={formData.password || ""}
                                 onChange={onChange}
                                 className="form-input"
                                 required

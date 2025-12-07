@@ -24,9 +24,9 @@ import useLocalStorage from "./hooks/useLocalStorage";
 import "./styles/App.css";
 
 function App() {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
 
-    const [user, _] = useLocalStorage("user", null);
+    const [user, setUser] = useLocalStorage("user", null);
 
     return (
         <BrowserRouter>
@@ -37,7 +37,12 @@ function App() {
                         path="/"
                         element={
                             <>
-                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <Header
+                                    isAuthenticated={isAuthenticated}
+                                    setIsAuthenticated={setIsAuthenticated}
+                                    user={user}
+                                    setUser={setUser}
+                                />
                                 <MainPage />
                                 <Footer />
                             </>
@@ -56,7 +61,13 @@ function App() {
                     />
                     <Route
                         path="/auth/:category"
-                        element={!isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
+                        element={
+                            !isAuthenticated ? (
+                                <AuthPage setUser={setUser} />
+                            ) : (
+                                <Navigate to="/" replace />
+                            )
+                        }
                     />
 
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
@@ -66,7 +77,12 @@ function App() {
                         path="/study-groups/:groupId"
                         element={
                             <>
-                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <Header
+                                    isAuthenticated={isAuthenticated}
+                                    setIsAuthenticated={setIsAuthenticated}
+                                    user={user}
+                                    setUser={setUser}
+                                />
                                 <GroupPage />
                             </>
                         }
@@ -76,7 +92,12 @@ function App() {
                         path="/createGroup"
                         element={
                             <ProtectedRoute>
-                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <Header
+                                    isAuthenticated={isAuthenticated}
+                                    setIsAuthenticated={setIsAuthenticated}
+                                    user={user}
+                                    setUser={setUser}
+                                />
                                 <CreateGroupPage />
                             </ProtectedRoute>
                         }
@@ -86,7 +107,12 @@ function App() {
                         path="/dashboard/:studentId"
                         element={
                             <ProtectedRoute>
-                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <Header
+                                    isAuthenticated={isAuthenticated}
+                                    setIsAuthenticated={setIsAuthenticated}
+                                    user={user}
+                                    setUser={setUser}
+                                />
                                 <DashboardPage />
                             </ProtectedRoute>
                         }
@@ -114,7 +140,12 @@ function App() {
                         path="/search"
                         element={
                             <>
-                                <Header isAuthenticated={isAuthenticated} user={user} />
+                                <Header
+                                    isAuthenticated={isAuthenticated}
+                                    setIsAuthenticated={setIsAuthenticated}
+                                    user={user}
+                                    setUser={setUser}
+                                />
                                 <SearchPage />
                             </>
                         }

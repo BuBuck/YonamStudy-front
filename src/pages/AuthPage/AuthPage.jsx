@@ -9,7 +9,7 @@ import Not from "../NotFoundPage/NotFoundPage";
 
 import "./AuthPage.css";
 
-function AuthPage() {
+function AuthPage({ setUser }) {
     const [formData, setFormData] = useState({});
     const [errors, setErrors] = useState({});
 
@@ -38,6 +38,7 @@ function AuthPage() {
             case "login":
                 return (
                     <LoginForm
+                        setUser={setUser}
                         formData={formData}
                         setFormData={(data) => setFormData(data)}
                         errors={errors}
