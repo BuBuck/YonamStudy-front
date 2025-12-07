@@ -1,0 +1,296 @@
+/* Application List Container */
+.application-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+    border-bottom: 2px solid var(--color-border);
+    overflow-x: auto;
+}
+
+.filter-tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+}
+
+.filter-tab:hover {
+    color: var(--color-primary-dark);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.filter-tab.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+/* Applications List */
+.applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 4px; /* 호버 시 테두리가 잘리지 않도록 */
+}
+
+.empty-applications {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-secondary);
+}
+
+/* Application Item */
+.application-item {
+    padding: var(--spacing-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.application-item:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.application-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.applicant-info {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.applicant-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.applicant-name {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: 4px;
+}
+
+.application-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+/* Status Badge */
+.status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Application Preview */
+.application-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.answer-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.875rem;
+}
+
+.answer-question {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.answer-text {
+    color: var(--color-text-secondary);
+}
+
+/* Application Detail */
+.application-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.applicant-detail-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: #f8f9fa;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-border);
+}
+
+.applicant-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.applicant-detail-card h3 {
+    margin: 0 0 var(--spacing-xs) 0;
+    color: var(--color-primary-dark);
+}
+
+.applicant-email {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+.applicant-detail-card > div {
+    flex: 1;
+}
+
+/* Answers Section */
+.answers-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.answers-section h4 {
+    margin: 0;
+    color: var(--color-primary-dark);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.answer-item {
+    padding: var(--spacing-md);
+    background: white;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.answer-question-label {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-sm);
+}
+
+.answer-content {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.no-answer {
+    font-style: italic;
+    color: var(--color-text-tertiary);
+}
+
+/* Application Actions */
+.application-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    padding-top: var(--spacing-md);
+    border-top: 2px solid var(--color-border);
+}
+
+.application-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-danger {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.btn-danger:hover {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* Required Mark */
+.required-mark {
+    color: var(--color-accent);
+    margin-left: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-tabs {
+        gap: 0;
+    }
+
+    .filter-tab {
+        font-size: 0.875rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .application-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .applicant-detail-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .application-actions {
+        flex-direction: column;
+    }
+
+    .application-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

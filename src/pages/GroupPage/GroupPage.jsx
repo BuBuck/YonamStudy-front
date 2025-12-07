@@ -7,16 +7,21 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Comment from "../../components/Comment/Comment";
 
-import { GoPeople } from "react-icons/go";
+import { GoFile, GoPaste, GoPeople } from "react-icons/go";
 import { GoCalendar } from "react-icons/go";
 import { GoLocation } from "react-icons/go";
 import { GoX } from "react-icons/go";
 
 import "./GroupPage.css";
+import ApplicationFormModal from "../../components/group/ModalForm/ApplicationFormModal";
+import CreateFormModal from "../../components/group/ModalForm/CreateFormModal";
+import ApplicationListModal from "../../components/group/ModalForm/ApplicationListModal";
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 function GroupPage() {
+    const [user, setUser] = useLocalStorage("user", null);
+
     const [group, setGroup] = useState({});
     const [isJoined, setIsJoined] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +29,17 @@ function GroupPage() {
         schedule: { weeks: [], time: "" },
     });
 
+    // 신청서 관련 모달 state
+    const [showApplicationForm, setShowApplicationForm] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showApplicationList, setShowApplicationList] = useState(false);
+
+    // 신청서 양식
+    const [applicationForm, setApplicationForm] = useState({});
+    // 제출된 신청서 목록
+    const [applications, setApplications] = useState([]);
+
+    // 태그 관련 state
     const [isEditTag, setIsEditTag] = useState(null);
     const [tagInput, setTagInput] = useState("");
 
@@ -32,15 +48,15 @@ function GroupPage() {
 
     const fileInputRef = useRef(null);
     const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState("");
 
-    const [user, setUser] = useLocalStorage("user", null);
+    const currentUserId = user?.userId;
+    const isGroupLeader = currentUserId === group.groupLeader?._id;
 
     const getImageUrl = (path) => {
         if (!path) return null;
         return path.startsWith("http") ? path : `${import.meta.env.VITE_BACKEND_URL}${path}`;
     };
-
-    const [preview, setPreview] = useState("");
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -57,25 +73,180 @@ function GroupPage() {
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}`
             );
 
-            setGroup(res.data.group);
+            const groupData = res.data.group;
+            setGroup(groupData);
+
+            // [로직 추가] 내가 이 그룹의 멤버인지 확인하여 isJoined 상태 업데이트
+            if (user && groupData) {
+                // 리더이거나, 멤버 리스트에 내 ID가 있다면 가입된 상태
+                const isLeader = groupData.groupLeader?._id === user.userId;
+                const isMember = groupData.groupMembers?.some(
+                    (member) => member._id === user.userId
+                );
+
+                setIsJoined(isLeader || isMember);
+            }
+
+            // [기존 유지] 저장된 질문지(questions)가 있으면 state에 넣어줌
+            if (groupData.questions && groupData.questions.length > 0) {
+                setApplicationForm({ questions: groupData.questions });
+            }
+        } catch (error) {
+            console.error("그룹 정보 로딩 실패:", error);
+        }
+    };
+
+    // 2. 신청서 목록 가져오기 (GET) - 리더만 호출
+    const fetchApplications = async () => {
+        if (!user) return;
+
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/applications`
+            );
+            setApplications(res.data.applications); // DB에서 가져온 신청서 목록 넣기
+        } catch (error) {
+            console.error("신청서 목록 로딩 실패:", error);
+        }
+    };
+
+    // 3. useEffect 수정 (데이터 로딩 시점 관리)
+    useEffect(() => {
+        fetchGroupData();
+    }, [groupId]);
+
+    // 4. 리더일 경우에만 신청서 목록을 따로 가져옴
+    useEffect(() => {
+        // 그룹 정보가 로딩되었고, 내가 리더라면 신청서 목록을 가져온다 (GET)
+        if (group && group.groupLeader?._id === user?.userId) {
+            fetchApplications();
+        }
+    }, [group, user]); // group 정보나 user가 로딩된 후 실행
+
+    // 스피너
+    if (!group) {
+        return <LoadingSpinner message="스터디 그룹 정보를 불러오고 있습니다..." />;
+    }
+
+    // =========================================
+    //  * 신청 폼 관련
+    // =========================================
+    const handleJoin = () => {
+        if (!user) {
+            alert("로그인을 해야 스터디 그룹 신청이 가능합니다.");
+
+            if (confirm("로그인하러 가시겠습니까?")) return navigate("/auth/login");
+
+            return;
+        }
+
+        // 신청 모달 열기
+        setShowApplicationForm(true);
+    };
+
+    const handleLeave = async () => {
+        if (!confirm("정말 스터디 그룹을 탈퇴하시겠습니까?")) return;
+
+        try {
+            setIsJoined(false);
         } catch (error) {
             console.error(error);
         }
     };
 
-    useEffect(() => {
-        fetchGroupData();
-        handleJoined();
-    }, []);
+    // 신청서 제출 핸들러
+    const handleSubmitApplication = async (applicationData) => {
+        if (!user) return alert("로그인이 필요합니다.");
 
-    if (!group) {
-        return <LoadingSpinner message="스터디 그룹 정보를 불러오고 있습니다..." />;
-    }
+        // 1. 데이터 가공
+        // applicationData가 { "질문ID": "답변내용", ... } 형태라고 가정
+        // 이걸 백엔드 스키마에 맞춰 [{ questionId: "...", answer: "..." }] 로 변환
+        const formattedAnswers = Object.entries(applicationData).map(([key, value]) => ({
+            questionId: key,
+            answer: value,
+        }));
 
-    const handleJoined = () => {
-        if (user?.group?.map((g) => g._id).toString() === groupId) {
-            return setIsJoined(true);
+        try {
+            // 2. API 호출
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/applications`,
+                {
+                    userId: user.userId, // 현재 로그인한 유저 ID
+                    answers: formattedAnswers,
+                }
+            );
+
+            // 3. 성공 처리
+            if (res.status === 201) {
+                // 목록에 금방 만든 신청서 추가 (화면 갱신용)
+                // (res.data.application에 DB에 저장된 완전한 데이터가 들어있음)
+                setApplications((prev) => [...prev, res.data.application]);
+
+                setShowApplicationForm(false); // 모달 닫기
+                alert("신청서가 제출되었습니다! 스터디장의 승인을 기다려주세요.");
+            }
+        } catch (error) {
+            console.error("제출 실패:", error);
+            const msg = error.response?.data?.message || "신청서 제출 중 오류가 발생했습니다.";
+            alert(msg);
         }
+    };
+
+    // 신청서 양식(질문) 저장 함수
+    const handleSaveForm = async (newFormData) => {
+        // 1. 저장 전 확인
+        if (!confirm("작성하신 신청서 양식을 저장하시겠습니까?")) return;
+
+        try {
+            // 2. 데이터 가공
+            // 모달에서 넘어온 데이터가 { questions: [...] } 형태인지, 그냥 배열 [...] 인지에 따라 처리
+            // 안전하게 questions 배열을 추출합니다.
+            const questionsToSave = newFormData.questions || newFormData;
+
+            // 3. 백엔드로 전송 (PUT)
+            const res = await axios.put(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/questions`,
+                { questions: questionsToSave } // body: { questions: [ ... ] }
+            );
+
+            // 4. 성공 처리
+            if (res.status === 200) {
+                // state 업데이트 (화면에 바로 반영)
+                setApplicationForm({ questions: res.data.questions });
+
+                // 모달 닫기
+                setShowCreateForm(false);
+
+                alert("신청서 양식이 성공적으로 저장되었습니다!");
+
+                // (선택) 전체 데이터 다시 불러오기
+                // fetchGroupData();
+            }
+        } catch (error) {
+            console.error("신청서 저장 실패:", error);
+            const errorMessage = error.response?.data?.message || "저장 중 오류가 발생했습니다.";
+            alert(errorMessage);
+        }
+    };
+
+    // 신청서 승인 핸들러
+    const handleApprove = async (applicationId) => {
+        setApplications(
+            applications.map((app) =>
+                app.id === applicationId ? { ...app, status: "approved" } : app
+            )
+        );
+        alert("신청서가 승인되었습니다!");
+    };
+
+    // 신청서 거절 핸들러
+    const handleReject = async (applicationId) => {
+        setApplications(
+            applications.map((app) =>
+                app.id === applicationId ? { ...app, status: "rejected" } : app
+            )
+        );
+        alert("신청서가 거절되었습니다!");
     };
 
     const handleDayToggle = (day) => {
@@ -145,16 +316,6 @@ function GroupPage() {
         if (formData.tags[index] === tag) {
             formData.tags.splice(index, 1);
             setIsEditTag(null);
-        }
-    };
-
-    const handleLeave = async () => {
-        if (!confirm("정말 스터디 그룹을 탈퇴하시겠습니까?")) return;
-
-        try {
-            setIsJoined(false);
-        } catch (error) {
-            console.error(error);
         }
     };
 
@@ -475,7 +636,7 @@ function GroupPage() {
                                 {!isJoined ? (
                                     <button
                                         className="btn btn-primary btn-full"
-                                        // onClick={handleJoin}
+                                        onClick={handleJoin}
                                     >
                                         그룹 신청하기
                                     </button>
@@ -543,7 +704,7 @@ function GroupPage() {
                                                 }}
                                                 style={{ margin: 0 }}
                                             >
-                                                수정
+                                                그룹 수정
                                             </button>
                                         </div>
                                     ))}
@@ -671,6 +832,38 @@ function GroupPage() {
                             </div>
                         </div>
 
+                        {isGroupLeader && (
+                            <div className="sidebar-card leader-actions-card">
+                                <h3>신청폼 관리</h3>
+                                <div className="leader-actions">
+                                    <button
+                                        className="btn btn-outline btn-full btn-with-icon"
+                                        onClick={() => setShowCreateForm(true)}
+                                    >
+                                        <GoFile size={18} />
+                                        신청서 양식 관리
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-full btn-with-icon"
+                                        onClick={() => setShowApplicationList(true)}
+                                    >
+                                        <GoPaste size={18} />
+                                        신청서 관리
+                                        {applications?.filter((a) => a.status === "pending")
+                                            .length > 0 && (
+                                            <span className="notification-badge">
+                                                {
+                                                    applications?.filter(
+                                                        (a) => a.status === "pending"
+                                                    ).length
+                                                }
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="sidebar-actions">
                             {group.groupLeader?._id === user?.userId
                                 ? isEditing && (
@@ -684,9 +877,35 @@ function GroupPage() {
                                 : null}
                         </div>
                     </aside>
+
                     <Comment groupId={groupId} user={user} />
                 </div>
             </div>
+
+            {/* Modals */}
+            <ApplicationFormModal
+                isOpen={showApplicationForm}
+                onClose={() => setShowApplicationForm(false)}
+                groupTitle={group.title}
+                applicationForm={applicationForm}
+                onSubmit={handleSubmitApplication}
+            />
+
+            <CreateFormModal
+                isOpen={showCreateForm}
+                onClose={() => setShowCreateForm(false)}
+                onSave={handleSaveForm}
+                existingForm={applicationForm}
+            />
+
+            <ApplicationListModal
+                isOpen={showApplicationList}
+                onClose={() => setShowApplicationList(false)}
+                applications={applications}
+                applicationForm={applicationForm}
+                onApprove={handleApprove}
+                onReject={handleReject}
+            />
         </div>
     );
 }
