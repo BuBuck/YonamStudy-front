@@ -148,9 +148,25 @@ function GroupPage() {
         if (!confirm("정말 스터디 그룹을 탈퇴하시겠습니까?")) return;
 
         try {
+            // 서버에 탈퇴 요청 보내기 (DELETE)
+            // 백엔드 API 주소에 맞게 수정 필요 (보통 /api/study-groups/:groupId/members/:userId 같은 형태)
+            await axios.delete(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/members`,
+                {
+                    data: { userId: user.userId }, // body에 내 ID 실어서 보냄
+                }
+            );
+
+            // 성공하면 화면 상태 변경
             setIsJoined(false);
+            alert("스터디 그룹에서 탈퇴했습니다.");
+
+            // 인원수 갱신을 위해 데이터 다시 불러오기
+            fetchGroupData();
         } catch (error) {
-            console.error(error);
+            console.error("탈퇴 실패:", error);
+            const msg = error.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.";
+            alert(msg);
         }
     };
 

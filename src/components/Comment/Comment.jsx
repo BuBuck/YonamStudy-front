@@ -34,7 +34,9 @@ function Comment({ groupId, user }) {
     const handleUpdateComment = async (commentId, content) => {
         try {
             const res = await axios.put(
-                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
+                `${
+                    import.meta.env.VITE_BACKEND_URL
+                }/api/study-groups/${groupId}/comments/${commentId}`,
                 { content: content, userId: user.userId }
             );
 
@@ -54,7 +56,9 @@ function Comment({ groupId, user }) {
     const handleDeleteComment = async (commentId, userId) => {
         try {
             const res = await axios.delete(
-                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/${commentId}`,
+                `${
+                    import.meta.env.VITE_BACKEND_URL
+                }/api/study-groups/${groupId}/comments/${commentId}`,
                 {
                     data: {
                         userId: userId,
