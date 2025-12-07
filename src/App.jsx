@@ -5,7 +5,7 @@ import Header from "./components/section/Header";
 import Main from "./components/section/Main";
 import Footer from "./components/section/Footer";
 
-import ChatDock from "./components/chat/ChatDock";
+import ChatDock from "./components/ChatDock/ChatDock";
 
 import MainPage from "./pages/MainPage";
 import AuthPage from "./pages/AuthPage";

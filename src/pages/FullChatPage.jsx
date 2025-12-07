@@ -86,7 +86,10 @@ function FullChatPage() {
             setUnreadMap((prev) => ({ ...prev, [newGroup._id]: 0 }));
             setLastMessageMap((prev) => ({
                 ...prev,
-                [newGroup._id]: { message: "새로운 대화방이 생성되었습니다.", time: new Date() },
+                [newGroup._id]: {
+                    message: "새로운 대화방이 생성되었습니다.",
+                    time: new Date(),
+                },
             }));
         });
 
@@ -113,12 +116,17 @@ function FullChatPage() {
         const handleReceivedMessage = (newMessage) => {
             // 백엔드에서 newMessage 객체가 populate되어 옴 (sender: { _id, name })
 
+            const senderId = newMessage.sender?._id || newMessage.sender;
+            const isMe = String(senderId) === String(userId);
+
             // A. 마지막 메시지 미리보기 갱신
             setLastMessageMap((prev) => ({
                 ...prev,
                 [newMessage.group]: {
                     message: newMessage.message,
                     time: newMessage.createdAt,
+                    sender: newMessage.sender,
+                    isMe: isMe,
                 },
             }));
 
@@ -128,7 +136,7 @@ function FullChatPage() {
                     ...prev,
                     {
                         ...newMessage,
-                        isMine: String(newMessage.sender._id) === String(userId),
+                        isMine: isMe,
                     },
                 ]);
                 scrollToBottom("smooth");
@@ -136,7 +144,7 @@ function FullChatPage() {
             // C. 다른 방이면 -> 안 읽은 배지 카운트 증가
             else {
                 // 내가 보낸 메시지가 아닐 때만 카운트 증가
-                if (String(newMessage.sender._id) !== String(userId)) {
+                if (!isMe) {
                     setUnreadMap((prev) => ({
                         ...prev,
                         [newMessage.group]: (prev[newMessage.group] || 0) + 1,
@@ -216,7 +224,7 @@ function FullChatPage() {
 
     // 그룹 선택 이동
     const handleSelectGroup = (id) => {
-        navigate(`/chat/${id}`);
+        navigate(`/chat/${id}`, { replace: true });
     };
 
     // 메시지 전송
@@ -247,7 +255,7 @@ function FullChatPage() {
                 {/* === 왼쪽 사이드바 (채팅 목록) === */}
                 <aside className="chat-sidebar">
                     <div className="chat-sidebar-header">
-                        <h2>채팅</h2>
+                        <h2>스터디 그룹 채팅방</h2>
                     </div>
                     <div className="chat-list">
                         {/* 내가 속한 그룹만 렌더링 */}
@@ -267,7 +275,7 @@ function FullChatPage() {
                                     className={`chat-item ${isActive ? "active" : ""}`}
                                     onClick={() => handleSelectGroup(group._id)}
                                 >
-                                    <img src={imgUrl} alt="group" className="chat-avatar" />
+                                    <img src={imgUrl} alt="그룹 이미지" className="chat-avatar" />
 
                                     <div className="chat-info">
                                         <div className="chat-header">
@@ -280,11 +288,11 @@ function FullChatPage() {
                                             </span>
                                         </div>
                                         <div className="chat-preview">
-                                            <span className="chat-last-message">
-                                                {(lastMsgData.isMe &&
-                                                    "나: " + lastMsgData.message) ||
-                                                    "대화 내용 없음"}
-                                            </span>
+                                            {lastMsgData
+                                                ? `${lastMsgData.isMe ? "나: " : ""}${
+                                                      lastMsgData.message
+                                                  }`
+                                                : "대화 내용 없음"}
                                             {unreadCount > 0 && (
                                                 <span className="chat-unread">{unreadCount}</span>
                                             )}
@@ -396,9 +404,22 @@ function FullChatPage() {
                             </form>
                         </>
                     ) : (
-                        <div className="no-chat-selected">
-                            <p>채팅방을 선택해주세요.</p>
-                        </div>
+                        <>
+                            <div className="chat-header">
+                                <button>
+                                    <button
+                                        className="icon-button"
+                                        title="최소화"
+                                        onClick={() => navigate(-1)}
+                                    >
+                                        <GoScreenNormal size={20} stroke="currentColor" />
+                                    </button>
+                                </button>
+                            </div>
+                            <div className="no-chat-selected">
+                                <p>채팅방을 선택해주세요.</p>
+                            </div>
+                        </>
                     )}
                 </main>
             </div>

@@ -40,6 +40,7 @@
     flex: 1;
     padding: 8px 0;
     min-height: 0;
+    background: rgba(236, 241, 246, 0.595);
 }
 
 .chat-list::-webkit-scrollbar {
@@ -65,13 +66,14 @@
     padding: 16px 20px;
     margin: 2px 12px;
     border: none;
-    background: transparent;
+    background: white;
     width: calc(100% - 24px);
     text-align: left;
     cursor: pointer;
     transition: all 0.2s ease;
     border-radius: 12px;
     position: relative;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .chat-item::before {
@@ -87,8 +89,15 @@
 }
 
 .chat-item:hover {
-    background: rgba(74, 85, 104, 0.04);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 107, 107, 0.1) 0%,
+        rgba(255, 107, 107, 0.14) 100%
+    );
     transform: translateX(2px);
+    span {
+        color: var(--color-accent);
+    }
 }
 
 .chat-item.active {
@@ -416,6 +425,10 @@
     box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
 }
 
+.message-mine .message-bubble p {
+    color: white;
+}
+
 .message-bubble p {
     margin: 0;
     line-height: 1.6;
@@ -494,6 +507,51 @@
 
 .send-button:active {
     transform: scale(0.95);
+}
+
+/* No Chat Selected */
+.no-chat-selected {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #f7fafc 0%, #ffffff 100%);
+    gap: 20px;
+}
+
+.no-chat-selected::before {
+    content: "💬";
+    font-size: 5rem;
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.no-chat-selected p {
+    color: #718096;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.no-chat-selected::after {
+    content: "채팅 목록에서 채팅 방을 선택하면 대화를 시작할 수 있습니다";
+    white-space: pre-line;
+    color: #a0aec0;
+    font-size: 0.95rem;
+    text-align: center;
+    line-height: 1.6;
+    font-weight: 500;
 }
 
 /* Responsive */
