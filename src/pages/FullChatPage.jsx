@@ -32,29 +32,37 @@ function FullChatPage() {
     const selectedGroup = groups.find((g) => g._id === groupId) || null;
 
     // -----------------------------------------------------------------------
-    // 1. 초기 데이터 로드 (알림, 마지막 메시지) & 소켓 Room 입장
+    // 1. 초기 데이터 로드 & 소켓 그룹 관리 (통합됨)
     // -----------------------------------------------------------------------
     useEffect(() => {
-        if (!user || !user.group) return;
+        if (!user) return;
 
-        // 1-1. 소켓 Room 입장 (Join)
-        // 백엔드: socket.on("joinGroups", (groupIds) => ...)
+        // [수정 1] 리스너 함수 정의 (그룹 목록 처리)
+        const handleGroups = (allGroups) => {
+            setGroups(allGroups);
+            if (user.group) {
+                const myGroupIds = user.group.map((g) => g._id);
+                const filtered = allGroups.filter((g) => myGroupIds.includes(g._id));
+                setMyGroups(filtered);
+            }
+        };
+
+        // [수정 2] 리스너 먼저 등록!
+        socket.on("groups", handleGroups);
+
+        // [수정 3] 리스너 등록 후 데이터 요청 (순서 중요)
+        socket.emit("groups");
+
+        // 1-1. 소켓 Room 입장
         const myGroupIds = user.group.map((g) => g._id);
         if (myGroupIds.length > 0) {
-            socket.emit("joinGroups", myGroupIds, (res) => {
-                if (res && res.ok) console.log("Socket: 내 그룹 Room 입장 완료");
-            });
+            socket.emit("joinGroups", myGroupIds);
         }
-
-        // 전체 그룹 리스트 요청
-        socket.emit("groups");
 
         // 1-2. REST API: 안 읽은 메시지 & 마지막 메시지 가져오기
         const fetchData = async () => {
             try {
-                // 쿼리 스트링용 그룹 ID 문자열 (콤마 구분)
                 const groupIdsStr = myGroupIds.join(",");
-
                 const [notiRes, lastMsgRes] = await Promise.all([
                     axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/notification`, {
                         params: { userId: userId, group: groupIdsStr },
@@ -64,13 +72,21 @@ function FullChatPage() {
                     }),
                 ]);
 
-                // 백엔드 응답: { total, groupCounts }
                 if (notiRes.data.groupCounts) {
                     setUnreadMap(notiRes.data.groupCounts);
                 }
-                // 백엔드 응답: { [groupId]: { message, time, sender... } }
+
+                // 지난번 수정했던 isMe 로직 포함
                 if (lastMsgRes.data) {
-                    setLastMessageMap(lastMsgRes.data);
+                    const rawData = lastMsgRes.data;
+                    const processedData = {};
+                    Object.keys(rawData).forEach((gid) => {
+                        const msgObj = rawData[gid];
+                        const senderId = msgObj.sender?._id || msgObj.sender;
+                        const isMe = String(senderId) === String(userId);
+                        processedData[gid] = { ...msgObj, isMe };
+                    });
+                    setLastMessageMap(processedData);
                 }
             } catch (error) {
                 console.error("초기 데이터 로드 실패:", error);
@@ -79,10 +95,10 @@ function FullChatPage() {
 
         fetchData();
 
-        // 1-3. 그룹 생성 이벤트 리스너 (기존 로직 유지)
+        // 1-3. 그룹 생성 시그널
         const removeListener = onGroupCreated((newGroup) => {
             setGroups((prev) => [...prev, newGroup]);
-            socket.emit("joinGroup", newGroup._id); // 새 그룹 소켓 입장
+            socket.emit("joinGroup", newGroup._id);
             setUnreadMap((prev) => ({ ...prev, [newGroup._id]: 0 }));
             setLastMessageMap((prev) => ({
                 ...prev,
@@ -93,33 +109,23 @@ function FullChatPage() {
             }));
         });
 
-        return () => removeListener();
-    }, [userId]);
+        // clean-up
+        return () => {
+            socket.off("groups", handleGroups); // 리스너 해제
+            removeListener();
+        };
+    }, [userId]); // 의존성: userId만 있으면 됨
 
     // -----------------------------------------------------------------------
-    // 2. 소켓 이벤트 리스너 (그룹 목록 갱신, 메시지 수신)
+    // 2. 메시지 수신 전용 useEffect (그룹 목록 로직 제거됨)
     // -----------------------------------------------------------------------
     useEffect(() => {
-        // 그룹 목록 수신
-        const handleGroups = (allGroups) => {
-            setGroups(allGroups);
+        // [수정 4] 여기서는 메시지 수신만 담당 (그룹 목록 수신 로직은 위로 이동했으므로 삭제)
 
-            // 내 유저 정보에 있는 그룹 ID만 필터링해서 보여줄 목록 생성
-            if (user && user.group) {
-                const myGroupIds = user.group.map((g) => g._id);
-                const filtered = allGroups.filter((g) => myGroupIds.includes(g._id));
-                setMyGroups(filtered);
-            }
-        };
-
-        // 메시지 수신 (실시간)
         const handleReceivedMessage = (newMessage) => {
-            // 백엔드에서 newMessage 객체가 populate되어 옴 (sender: { _id, name })
-
             const senderId = newMessage.sender?._id || newMessage.sender;
             const isMe = String(senderId) === String(userId);
 
-            // A. 마지막 메시지 미리보기 갱신
             setLastMessageMap((prev) => ({
                 ...prev,
                 [newMessage.group]: {
@@ -130,20 +136,10 @@ function FullChatPage() {
                 },
             }));
 
-            // B. 현재 보고 있는 방이면 -> 메시지 리스트에 추가
             if (groupId === newMessage.group) {
-                setCurrentMessages((prev) => [
-                    ...prev,
-                    {
-                        ...newMessage,
-                        isMine: isMe,
-                    },
-                ]);
-                scrollToBottom("smooth");
-            }
-            // C. 다른 방이면 -> 안 읽은 배지 카운트 증가
-            else {
-                // 내가 보낸 메시지가 아닐 때만 카운트 증가
+                setCurrentMessages((prev) => [...prev, { ...newMessage, isMine: isMe }]);
+                scrollToBottom(); // 인자 없이 호출해도 되도록 수정하거나 기존 함수 유지
+            } else {
                 if (!isMe) {
                     setUnreadMap((prev) => ({
                         ...prev,
@@ -153,63 +149,12 @@ function FullChatPage() {
             }
         };
 
-        socket.on("groups", handleGroups);
         socket.on("receivedMessage", handleReceivedMessage);
 
         return () => {
-            socket.off("groups", handleGroups);
             socket.off("receivedMessage", handleReceivedMessage);
         };
-    }, [groupId, userId]); // groupId가 바뀔 때마다 조건 분기 확인을 위해 의존성 추가
-
-    // -----------------------------------------------------------------------
-    // 3. 채팅방 선택(진입) 시 메시지 로드 및 읽음 처리
-    // -----------------------------------------------------------------------
-    useEffect(() => {
-        if (!groupId) return;
-
-        const loadMessages = async () => {
-            try {
-                // A. 읽음 처리 (PUT /read)
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/read`, {
-                    groupId: groupId,
-                    userId: userId,
-                });
-
-                // 읽음 처리 후 프론트 상태 즉시 0으로 초기화
-                setUnreadMap((prev) => ({ ...prev, [groupId]: 0 }));
-
-                // B. 메시지 목록 조회 (GET /:groupId/messages)
-                // 백엔드에서 header의 userid를 확인하므로 headers 설정 필수
-                const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/messages`,
-                    {
-                        headers: {
-                            userid: userId,
-                        },
-                    }
-                );
-
-                // 화면 표시용 데이터 가공 (isMine 추가)
-                const formattedMessages = res.data.map((msg) => ({
-                    ...msg,
-                    isMine: String(msg.sender._id) === String(userId),
-                }));
-
-                setCurrentMessages(formattedMessages);
-                scrollToBottom("auto");
-            } catch (error) {
-                console.error("메시지 로드 실패:", error);
-                // 권한 없음 등의 에러 처리
-                if (error.response && error.response.status === 403) {
-                    alert("해당 스터디 그룹의 멤버가 아닙니다.");
-                    navigate("/", { replace: true });
-                }
-            }
-        };
-
-        loadMessages();
-    }, [groupId, userId, navigate]);
+    }, [groupId, userId]);
 
     // -----------------------------------------------------------------------
     // 4. 이벤트 핸들러 및 유틸

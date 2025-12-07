@@ -36,10 +36,29 @@ function ChatDock() {
     const [inputMessage, setInputMessage] = useState("");
 
     // -----------------------------------------------------------------------
-    // 1. 초기 데이터 로드 & 소켓 입장
+    // 1. 초기 데이터 로드 & 소켓 그룹 관리 (통합 및 순서 수정)
     // -----------------------------------------------------------------------
     useEffect(() => {
         if (!user || !user.group) return;
+
+        // [수정 1] 리스너 함수 정의 (그룹 목록 처리)
+        const handleGroups = (allGroups) => {
+            setGroups(allGroups);
+
+            if (user && user.group) {
+                const myGroupIds = user.group.map((g) => g._id);
+                const filtered = allGroups.filter((g) => myGroupIds.includes(g._id));
+                setMyGroups(filtered);
+            }
+        };
+
+        // [수정 2] 리스너 먼저 등록! (가장 중요)
+        socket.on("groups", handleGroups);
+
+        // [수정 3] 리스너 등록 후 데이터 요청
+        if (socket.connected) {
+            socket.emit("groups");
+        }
 
         // 소켓 Room 입장
         const myGroupIds = user.group.map((g) => g._id);
@@ -49,12 +68,7 @@ function ChatDock() {
             });
         }
 
-        // 전체 그룹 리스트 요청
-        if (socket.connected) {
-            socket.emit("groups");
-        }
-
-        // 안 읽은 메시지 & 마지막 메시지 가져오기
+        // REST API: 안 읽은 메시지 & 마지막 메시지 가져오기
         const fetchData = async () => {
             try {
                 const groupIdsStr = myGroupIds.join(",");
@@ -75,16 +89,18 @@ function ChatDock() {
                     setTotalUnread(notiRes.data.total);
                 }
                 if (lastMsgRes.data) {
+                    // ChatDock에서는 목록에 "나:" 표시가 필수가 아니라면 raw data 그대로 써도 무방합니다.
+                    // 필요하다면 FullChatPage처럼 가공 로직을 추가하세요.
                     setLastMessageMap(lastMsgRes.data);
                 }
             } catch (error) {
-                console.warn("⚠️ 초기 데이터 로드 실패 (백엔드 연결 필요):", error.message);
+                console.warn("⚠️ 초기 데이터 로드 실패:", error.message);
             }
         };
 
         fetchData();
 
-        // 그룹 생성 이벤트
+        // 그룹 생성 이벤트 리스너
         const removeListener = onGroupCreated((newGroup) => {
             setGroups((prev) => [...prev, newGroup]);
             if (socket.connected) {
@@ -97,22 +113,18 @@ function ChatDock() {
             }));
         });
 
-        return () => removeListener();
-    }, [userId]);
+        // clean-up
+        return () => {
+            socket.off("groups", handleGroups); // 리스너 해제
+            removeListener();
+        };
+    }, [userId]); // 의존성: userId
 
     // -----------------------------------------------------------------------
-    // 2. 소켓 이벤트 리스너
+    // 2. 메시지 수신 전용 useEffect
     // -----------------------------------------------------------------------
     useEffect(() => {
-        const handleGroups = (allGroups) => {
-            setGroups(allGroups);
-
-            if (user && user.group) {
-                const myGroupIds = user.group.map((g) => g._id);
-                const filtered = allGroups.filter((g) => myGroupIds.includes(g._id));
-                setMyGroups(filtered);
-            }
-        };
+        // [수정 4] handleGroups 관련 로직은 위로 이동했으므로 제거하고, 메시지 수신만 남깁니다.
 
         const handleReceivedMessage = (newMessage) => {
             // 마지막 메시지 갱신
@@ -124,7 +136,7 @@ function ChatDock() {
                 },
             }));
 
-            // 현재 보고 있는 방이면 메시지 추가
+            // 현재 보고 있는 방이면 메시지 추가 (isMe 계산 포함)
             if (selectedGroup && selectedGroup._id === newMessage.group) {
                 setCurrentMessages((prev) => [
                     ...prev,
@@ -137,6 +149,7 @@ function ChatDock() {
             }
             // 다른 방이면 안 읽은 배지 증가
             else {
+                // 내가 보낸 메시지가 아닐 때만 카운트
                 if (String(newMessage.sender._id) !== String(userId)) {
                     setUnreadMap((prev) => ({
                         ...prev,
@@ -147,11 +160,9 @@ function ChatDock() {
             }
         };
 
-        socket.on("groups", handleGroups);
         socket.on("receivedMessage", handleReceivedMessage);
 
         return () => {
-            socket.off("groups", handleGroups);
             socket.off("receivedMessage", handleReceivedMessage);
         };
     }, [selectedGroup, userId]);
