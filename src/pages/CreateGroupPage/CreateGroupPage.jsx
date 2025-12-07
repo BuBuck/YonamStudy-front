@@ -2,8 +2,8 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import useLocalStorage from "../hooks/useLocalStorage";
-import { notifyGroupCreated } from "../utils/groupSignal";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { notifyGroupCreated } from "../../utils/groupSignal";
 
 import { CiCamera } from "react-icons/ci";
 

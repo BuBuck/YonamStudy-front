@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
-import SignupFrom from "../components/auth/SignupForm";
-import LoginForm from "../components/auth/LoginForm";
-import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
-import ResetPasswordForm from "../components/auth/ResetPasswordForm";
-import Not from "./NotFoundPage";
+import SignupFrom from "../../components/auth/SignupForm";
+import LoginForm from "../../components/auth/LoginForm";
+import ForgotPasswordForm from "../../components/auth/ForgotPasswordForm";
+import ResetPasswordForm from "../../components/auth/ResetPasswordForm";
+import Not from "../NotFoundPage/NotFoundPage";
 
 import "./AuthPage.css";
 

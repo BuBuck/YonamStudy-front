@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import socket from "../server";
-import { onGroupCreated } from "../utils/groupSignal";
-import { formatTime } from "../utils/timeUtils";
+import socket from "../../server";
+import { onGroupCreated } from "../../utils/groupSignal";
+import { formatTime } from "../../utils/timeUtils";
 
 // 아이콘 및 스타일
 import { GoPlus, GoScreenNormal } from "react-icons/go";
-import "./FullChatPage.css";
+import "./ChatPage.css";
 
-function FullChatPage() {
+function ChatPage() {
     const { groupId } = useParams();
     const navigate = useNavigate();
     const messagesEndRef = useRef(null);
@@ -373,4 +373,4 @@ function FullChatPage() {
         </div>
     );
 }
-export default FullChatPage;
+export default ChatPage;

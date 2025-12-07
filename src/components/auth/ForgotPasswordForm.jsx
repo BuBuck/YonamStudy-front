@@ -9,7 +9,7 @@ import { GoMail } from "react-icons/go";
 import { GoLock } from "react-icons/go";
 import { GoArrowLeft } from "react-icons/go";
 
-import "../../pages/AuthPage.css";
+import "../../pages/AuthPage/AuthPage.css";
 
 function ForgotPasswordForm({ formData, setFormData, onChange }) {
     const [isSubmitted, setIsSubmitted] = useState(false);

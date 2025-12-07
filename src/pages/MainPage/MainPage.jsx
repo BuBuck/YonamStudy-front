@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import StudyGroupCard from "../components/StudyGroupCard/StudyGroupCard";
-import HeroCarousel from "../components/HeroCarousel/HeroCarousel";
+import StudyGroupCard from "../../components/StudyGroupCard/StudyGroupCard";
+import HeroCarousel from "../../components/HeroCarousel/HeroCarousel";
 
 import "./MainPage.css";
 

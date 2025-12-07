@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-import useLocalStorage from "../hooks/useLocalStorage";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
-import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
-import Comment from "../components/Comment/Comment";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import Comment from "../../components/Comment/Comment";
 
 import { GoPeople } from "react-icons/go";
 import { GoCalendar } from "react-icons/go";

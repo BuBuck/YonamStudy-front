@@ -4,7 +4,7 @@ import axios from "axios";
 
 import { AuthContext } from "../../contexts/auth/AuthContext";
 
-import "../../pages/AuthPage.css";
+import "../../pages/AuthPage/AuthPage.css";
 
 function LoginForm({ formData, setFormData, onChange, errors, setErrors }) {
     const navigate = useNavigate();

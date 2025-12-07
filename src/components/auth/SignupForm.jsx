@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import "../../pages/AuthPage.css";
+import "../../pages/AuthPage/AuthPage.css";
 
 function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
     const [isCodeSent, setIsCodeSent] = useState(false);

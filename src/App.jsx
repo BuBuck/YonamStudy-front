@@ -7,14 +7,14 @@ import Footer from "./components/section/Footer";
 
 import ChatDock from "./components/ChatDock/ChatDock";
 
-import MainPage from "./pages/MainPage";
-import AuthPage from "./pages/AuthPage";
-import SearchPage from "./pages/SearchPage";
-import GroupPage from "./pages/GroupPage";
-import CreateGroupPage from "./pages/CreateGroupPage";
-import DashboardPage from "./pages/DashboardPage";
-import FullChatPage from "./pages/FullChatPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import MainPage from "./pages/MainPage/MainPage";
+import AuthPage from "./pages/AuthPage/AuthPage";
+import SearchPage from "./pages/SearchPage/SearchPage";
+import GroupPage from "./pages/GroupPage/GroupPage";
+import CreateGroupPage from "./pages/CreateGroupPage/CreateGroupPage";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
+import ChatPage from "./pages/ChatPage/ChatPage";
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 
 import { AuthContext } from "./contexts/auth/AuthContext";
 
@@ -96,7 +96,7 @@ function App() {
                         path="/chat"
                         element={
                             <ProtectedRoute>
-                                <FullChatPage />
+                                <ChatPage />
                             </ProtectedRoute>
                         }
                     />
@@ -105,7 +105,7 @@ function App() {
                         path="/chat/:groupId"
                         element={
                             <ProtectedRoute>
-                                <FullChatPage />
+                                <ChatPage />
                             </ProtectedRoute>
                         }
                     />

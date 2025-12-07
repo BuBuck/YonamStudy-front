@@ -11,7 +11,7 @@ import { GoCheck } from "react-icons/go";
 import { GoArrowLeft } from "react-icons/go";
 import { GoX } from "react-icons/go";
 
-import "../../pages/AuthPage.css";
+import "../../pages/AuthPage/AuthPage.css";
 
 function ResetPasswordForm({ formData, setFormData, onChange, token }) {
     const [isLoading, setIsLoading] = useState(false);
