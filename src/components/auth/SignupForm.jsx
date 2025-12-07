@@ -10,7 +10,7 @@ function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
 
     const navigate = useNavigate();
 
-    const validateForm = () => {
+    const validateForm = (type) => {
         const newErrors = {};
 
         if (!formData.email) {
@@ -18,27 +18,28 @@ function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
         } else if (!/^[0-9]{8}@st\.yc\.ac\.kr$/.test(formData.email)) {
             newErrors.email = "올바른 이메일 형식이 아닙니다.";
         }
-        if (!formData.code) {
-            newErrors.code = "6자리 인증코드를 입력해주세요.";
+        if (type !== "sendCode") {
+            if (!formData.code) {
+                newErrors.code = "6자리 인증코드를 입력해주세요.";
+            }
         }
 
-        if (isEmailVerified) {
-            if (!formData.name) {
-                newErrors.name = "이름을 입력해주세요.";
-            }
-            if (!formData.major) {
-                newErrors.major = "학과를 선택해주세요.";
-            }
-            if (!formData.phoneNumber) {
-                newErrors.phoneNumber = "전화번호를 입력해주세요.";
-            }
-            if (!formData.birthdate) {
-                newErrors.birthdate = "생년월일을 입력해주세요.";
-            }
+        if (type === "signup") {
+            if (!formData.name) newErrors.name = "이름을 입력해주세요.";
+            if (!formData.major) newErrors.major = "학과를 선택해주세요.";
+            if (!formData.phoneNumber) newErrors.phoneNumber = "전화번호를 입력해주세요.";
+            if (!formData.birthdate) newErrors.birthdate = "생년월일을 입력해주세요.";
+
             if (!formData.password) {
                 newErrors.password = "비밀번호를 입력해주세요.";
             } else if (formData.password.length < 8) {
                 newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
+            }
+
+            // 추가: 회원가입 버튼 눌렀을 때 이메일 인증 완료 여부도 체크하고 싶다면
+            if (!isEmailVerified) {
+                alert("이메일 인증을 완료해주세요.");
+                return false;
             }
         }
         setErrors(newErrors);
@@ -46,7 +47,7 @@ function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
     };
 
     const handleSendCode = async () => {
-        if (validateForm()) {
+        if (validateForm("sendCode")) {
             try {
                 const res = await axios.post(
                     `${import.meta.env.VITE_BACKEND_URL}/api/auth/send-verification`,
@@ -64,30 +65,33 @@ function SignupForm({ formData, setFormData, onChange, errors, setErrors }) {
     };
 
     const handleCheckCode = async () => {
-        try {
-            const res = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-code`,
-                {
-                    email: formData.email,
-                    code: formData.code,
-                }
-            );
-
-            alert(res.data.message);
-            setIsEmailVerified(true);
-            setIsCodeSent(false);
-        } catch (error) {
-            console.error(error);
-            setIsEmailVerified(false);
+        if (validateForm("verifyCode")) {
+            try {
+                const res = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-code`,
+                    {
+                        email: formData.email,
+                        code: formData.code,
+                    }
+                );
+                alert(res.data.message);
+                setIsEmailVerified(true);
+                setIsCodeSent(false);
+            } catch (error) {
+                console.error(error);
+                setIsEmailVerified(false);
+                alert("인증 코드가 올바르지 않습니다.");
+            }
         }
     };
 
     const handleSignup = async (e) => {
         e.preventDefault();
 
-        if (validateForm()) {
+        if (validateForm("signup")) {
             try {
                 const { name, major, email, phoneNumber, birthdate, password } = formData;
+
                 const res = await axios.post(
                     `${import.meta.env.VITE_BACKEND_URL}/api/auth/sign-up`,
                     {
