@@ -107,8 +107,8 @@
 }
 
 .group-image {
-    width: 56px;
-    height: 56px;
+    width: 100%;
+    height: 100%;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
@@ -116,7 +116,7 @@
 }
 
 .group-image img {
-    width: 100%;
+    max-width: 100%;
     height: 100%;
     object-fit: cover;
 }
@@ -232,6 +232,7 @@
     margin: 0;
     line-height: 1.6;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;

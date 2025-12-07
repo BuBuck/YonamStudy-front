@@ -51,7 +51,7 @@ function DashboardPage() {
                                 더보기
                             </div>
                         </div>
-                        <MyGroupList groups={user.group} />
+                        <MyGroupList groups={user.group} userId={user.userId} />
                     </section>
                     <aside className="dashboard-sidebar">
                         <div className="sidebar-section">

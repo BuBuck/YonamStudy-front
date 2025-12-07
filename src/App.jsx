@@ -14,16 +14,19 @@ import GroupPage from "./pages/GroupPage";
 import CreateGroupPage from "./pages/CreateGroupPage";
 import DashboardPage from "./pages/DashboardPage";
 import FullChatPage from "./pages/FullChatPage";
-import Not from "./pages/NotFoundPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 import { AuthContext } from "./contexts/auth/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 import "./styles/App.css";
 
 function App() {
-    const data = useContext(AuthContext);
+    const { isAuthenticated } = useContext(AuthContext);
+
+    const [user, _] = useLocalStorage("user", null);
 
     return (
         <BrowserRouter>
@@ -34,7 +37,7 @@ function App() {
                         path="/"
                         element={
                             <>
-                                <Header />
+                                <Header isAuthenticated={isAuthenticated} user={user} />
                                 <MainPage />
                                 <Footer />
                             </>
@@ -44,7 +47,7 @@ function App() {
                         exact
                         path="/auth"
                         element={
-                            !data.isAuthenticated ? (
+                            !isAuthenticated ? (
                                 <Navigate to="/auth/login" replace />
                             ) : (
                                 <Navigate to="/" replace />
@@ -53,7 +56,7 @@ function App() {
                     />
                     <Route
                         path="/auth/:category"
-                        element={!data.isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
+                        element={!isAuthenticated ? <AuthPage /> : <Navigate to="/" replace />}
                     />
 
                     <Route exact path="/search/:searchId" element={<SearchPage />} />
@@ -63,7 +66,7 @@ function App() {
                         path="/study-groups/:groupId"
                         element={
                             <>
-                                <Header />
+                                <Header isAuthenticated={isAuthenticated} user={user} />
                                 <GroupPage />
                             </>
                         }
@@ -73,7 +76,7 @@ function App() {
                         path="/createGroup"
                         element={
                             <ProtectedRoute>
-                                <Header />
+                                <Header isAuthenticated={isAuthenticated} user={user} />
                                 <CreateGroupPage />
                                 <Footer />
                             </ProtectedRoute>
@@ -84,7 +87,7 @@ function App() {
                         path="/dashboard/:studentId"
                         element={
                             <ProtectedRoute>
-                                <Header />
+                                <Header isAuthenticated={isAuthenticated} user={user} />
                                 <DashboardPage />
                             </ProtectedRoute>
                         }
@@ -107,15 +110,10 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    <Route
-                        exact
-                        path="/bubuck"
-                        element={<Navigate to="https://github.com/BuBuck" />}
-                    />
-                    <Route exact path="/*" element={<Not />} />
+                    <Route exact path="/*" element={<NotFoundPage />} />
                 </Routes>
+                {isAuthenticated && <ChatDock />}
             </Main>
-            {data.isAuthenticated && <ChatDock />}
         </BrowserRouter>
     );
 }

@@ -292,6 +292,7 @@ function FullChatPage() {
                                     </button>
                                 </div>
                             </div>
+
                             <div className="messages-container">
                                 <div className="messages-list">
                                     {currentMessages.map((msg, index) => (
@@ -326,6 +327,7 @@ function FullChatPage() {
                                     <div ref={messagesEndRef} />
                                 </div>
                             </div>
+
                             <form className="chat-input-container" onSubmit={handleSendMessage}>
                                 <button type="button" className="icon-button">
                                     <GoPlus size={20} />
@@ -353,9 +355,18 @@ function FullChatPage() {
                             </form>
                         </>
                     ) : (
-                        <div className="no-chat-selected">
-                            <p>채팅방을 선택해주세요.</p>
-                        </div>
+                        <>
+                            <div className="header-container">
+                                <div className="chat-header-info">
+                                    <button className="icon-button" onClick={() => navigate(-1)}>
+                                        <GoScreenNormal size={20} stroke="currentColor" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="no-chat-selected">
+                                <p>채팅방을 선택해주세요.</p>
+                            </div>
+                        </>
                     )}
                 </main>
             </div>
