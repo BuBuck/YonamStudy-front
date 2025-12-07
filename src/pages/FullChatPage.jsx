@@ -157,6 +157,49 @@ function FullChatPage() {
     }, [groupId, userId]);
 
     // -----------------------------------------------------------------------
+    // 3. 채팅방 선택(진입) 시 메시지 로드 및 읽음 처리 (이 부분이 누락됨)
+    // -----------------------------------------------------------------------
+    useEffect(() => {
+        if (!groupId) return;
+
+        const loadMessages = async () => {
+            try {
+                // A. 읽음 처리 (PUT /read)
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/study-groups/read`, {
+                    groupId: groupId,
+                    userId: userId,
+                });
+
+                // 읽음 처리 후 프론트 상태 즉시 0으로 초기화
+                setUnreadMap((prev) => ({ ...prev, [groupId]: 0 }));
+
+                // B. 메시지 목록 조회 (GET /:groupId/messages)
+                const res = await axios.get(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/messages`,
+                    {
+                        headers: {
+                            userid: userId,
+                        },
+                    }
+                );
+
+                // 화면 표시용 데이터 가공 (isMine 추가)
+                const formattedMessages = res.data.map((msg) => ({
+                    ...msg,
+                    isMine: String(msg.sender._id) === String(userId),
+                }));
+
+                setCurrentMessages(formattedMessages);
+                scrollToBottom("auto");
+            } catch (error) {
+                console.error("메시지 로드 실패:", error);
+            }
+        };
+
+        loadMessages();
+    }, [groupId, userId]); // groupId가 바뀔 때마다 실행
+
+    // -----------------------------------------------------------------------
     // 4. 이벤트 핸들러 및 유틸
     // -----------------------------------------------------------------------
 
