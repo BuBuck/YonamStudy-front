@@ -22,7 +22,7 @@ const CreateFormModal = ({ isOpen, onClose, onSave, existingForm }) => {
         setQuestions([
             ...questions,
             {
-                id: `q_${Date.now()}`,
+                id: `q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 type: "text",
                 question: "",
                 description: "",

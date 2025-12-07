@@ -174,10 +174,9 @@ function GroupPage() {
     const handleSubmitApplication = async (applicationData) => {
         if (!user) return alert("로그인이 필요합니다.");
 
+        const { answers } = applicationData;
         // 1. 데이터 가공
-        // applicationData가 { "질문ID": "답변내용", ... } 형태라고 가정
-        // 이걸 백엔드 스키마에 맞춰 [{ questionId: "...", answer: "..." }] 로 변환
-        const formattedAnswers = Object.entries(applicationData).map(([key, value]) => ({
+        const formattedAnswers = Object.entries(answers).map(([key, value]) => ({
             questionId: key,
             answer: value,
         }));
