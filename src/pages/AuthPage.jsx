@@ -5,7 +5,7 @@ import SignupFrom from "../components/auth/SignupForm";
 import LoginForm from "../components/auth/LoginForm";
 import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
 import ResetPasswordForm from "../components/auth/ResetPasswordForm";
-import Not from "./Not";
+import Not from "./NotFoundPage";
 
 import "./AuthPage.css";
 

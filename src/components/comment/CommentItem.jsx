@@ -36,15 +36,15 @@ function CommentItem({ comment, user = null, onUpdate, onDelete, isOpen, onToggl
         <div className="comment-item">
             <div className="comment-avatar">
                 <img
-                    src={`${import.meta.env.VITE_BACKEND_URL}${comment.commenter.userProfile}`}
+                    src={`${import.meta.env.VITE_BACKEND_URL}${comment.commenter?.userProfile}`}
                     className="comment-avatar"
                 />
             </div>
             <div className="comment-content-wrapper">
                 <div className="comment-header">
                     <div className="comment-author">
-                        <span className="author-name">{comment.commenter.name}</span>
-                        <span className="author-department">{comment.commenter.major}</span>
+                        <span className="author-name">{comment.commenter?.name}</span>
+                        <span className="author-department">{comment.commenter?.major}</span>
                     </div>
                     <span className="comment-timestamp">{`${
                         comment.createdAt === comment.updatedAt

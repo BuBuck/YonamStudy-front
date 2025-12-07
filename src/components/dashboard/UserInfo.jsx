@@ -90,33 +90,6 @@ function UserInfo({ user }) {
         }
     };
 
-    const stats = [
-        {
-            icon: "👥",
-            label: "참여 그룹",
-            value: user?.group?.length || 0,
-            color: "#ff6b6b",
-        },
-        {
-            icon: "✅",
-            label: "출석률",
-            value: "95%",
-            color: "#48bb78",
-        },
-        {
-            icon: "📆",
-            label: "활동 일수",
-            value: "45일",
-            color: "#4299e1",
-        },
-        {
-            icon: "✏️",
-            label: "완료 과제",
-            value: "12",
-            color: "#ed8936",
-        },
-    ];
-
     return (
         <div className="user-info">
             {isEditing ? (
@@ -217,25 +190,6 @@ function UserInfo({ user }) {
                             <p className="user-email">{user.studentId}@st.yc.ac.kr</p>
                             <p className="user-department">{user.major || "학과 미등록"}</p>
                         </div>
-                    </div>
-
-                    <div className="stats-grid">
-                        {stats.map((stat, index) => (
-                            <div key={index} className="stat-card">
-                                <div
-                                    className="stat-icon"
-                                    style={{ background: `${stat.color}15` }}
-                                >
-                                    <span style={{ fontSize: "1.75rem" }}>{stat.icon}</span>
-                                </div>
-                                <div className="stat-content">
-                                    <div className="stat-value" style={{ color: stat.color }}>
-                                        {stat.value}
-                                    </div>
-                                    <div className="stat-label">{stat.label}</div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </>
             )}

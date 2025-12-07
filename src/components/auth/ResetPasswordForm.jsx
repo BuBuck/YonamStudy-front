@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import Not from "../../pages/Not";
-
 import { GoLock } from "react-icons/go";
 import { MdOutlineShield } from "react-icons/md";
 import { FiEye } from "react-icons/fi";

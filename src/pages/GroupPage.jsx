@@ -5,7 +5,7 @@ import axios from "axios";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
-import Comment from "../components/comment/Comment";
+import Comment from "../components/Comment/Comment";
 
 import { GoPeople } from "react-icons/go";
 import { GoCalendar } from "react-icons/go";
