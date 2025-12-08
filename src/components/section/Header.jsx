@@ -41,7 +41,7 @@ function Header({ isAuthenticated, setIsAuthenticated, user, setUser }) {
                         <form className="search-form" onSubmit={handleSearch}>
                             <input
                                 type="text"
-                                placeholder="스터디 그룹 검색..."
+                                placeholder="스터디 그룹 이름, 태그(#) 검색..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="search-input"
