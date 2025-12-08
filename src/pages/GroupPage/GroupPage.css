@@ -405,6 +405,17 @@
     margin-bottom: 4px;
 }
 
+.notification-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: white;
+    background-color: var(--color-accent);
+    border-radius: 500%;
+}
+
 /* --- 4. 반응형 미디어 쿼리 (Responsive) --- */
 
 /* Tablet & Mobile (1024px 이하) */

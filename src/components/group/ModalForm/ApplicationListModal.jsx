@@ -15,7 +15,7 @@ const ApplicationListModal = ({
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [filter, setFilter] = useState("all");
 
-    // 필터링 로직 유지
+    // 필터링 로직
     const filteredApplications = applications.filter((app) => {
         if (filter === "all") return true;
         return app.status === filter;
@@ -29,7 +29,27 @@ const ApplicationListModal = ({
         setSelectedApplication(null);
     };
 
-    // [수정 1] 날짜 포맷 함수 안전하게 변경
+    // [복구됨] 승인 처리 함수 (성공 시 목록으로 돌아감)
+    const handleApprove = async (applicationId) => {
+        try {
+            await onApprove(applicationId); // 부모(GroupPage)의 승인 로직 실행
+            setSelectedApplication(null); // 상세 모달 닫고 목록으로 복귀
+        } catch (error) {
+            console.error("승인 실패:", error);
+        }
+    };
+
+    // [복구됨] 거절 처리 함수 (성공 시 목록으로 돌아감)
+    const handleReject = async (applicationId) => {
+        try {
+            await onReject(applicationId); // 부모(GroupPage)의 거절 로직 실행
+            setSelectedApplication(null); // 상세 모달 닫고 목록으로 복귀
+        } catch (error) {
+            console.error("거절 실패:", error);
+        }
+    };
+
+    // 날짜 포맷
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -42,21 +62,17 @@ const ApplicationListModal = ({
         });
     };
 
-    // [수정 2] 답변 찾는 헬퍼 함수 추가 (배열에서 찾기)
+    // 답변 찾기 헬퍼
     const findAnswer = (appAnswers, questionId) => {
         if (!appAnswers) return null;
-
-        // 만약 백엔드가 객체 { "id": "val" }로 준다면:
         if (!Array.isArray(appAnswers)) {
             return appAnswers[questionId];
         }
-
-        // 만약 백엔드가 배열 [{ questionId: "...", answer: "..." }]로 준다면:
         const found = appAnswers.find((a) => a.questionId === questionId);
         return found ? found.answer : null;
     };
 
-    // [수정 3] 상태 뱃지 함수 유지
+    // 상태 뱃지
     const getStatusBadge = (status) => {
         const badges = {
             pending: { label: "대기중", className: "status-pending" },
@@ -76,7 +92,6 @@ const ApplicationListModal = ({
             {!selectedApplication ? (
                 /* === 목록 뷰 === */
                 <div className="application-list-container">
-                    {/* 탭 버튼들 (기존 코드 유지) */}
                     <div className="filter-tabs">
                         <button
                             className={`filter-tab ${filter === "all" ? "active" : ""}`}
@@ -112,8 +127,6 @@ const ApplicationListModal = ({
                         ) : (
                             filteredApplications.map((application) => {
                                 const statusBadge = getStatusBadge(application.status);
-
-                                // [수정 4] 데이터 접근 경로 수정 (applicant.name, createdAt 등)
                                 const applicantName = application.applicant?.name || "알 수 없음";
                                 const submittedDate =
                                     application.createdAt || application.submittedAt;
@@ -127,7 +140,6 @@ const ApplicationListModal = ({
                                         <div className="application-header">
                                             <div className="applicant-info">
                                                 <div className="applicant-avatar">
-                                                    {/* 프로필 이미지가 있다면 표시, 없으면 아이콘 */}
                                                     {application.applicant?.userProfile ? (
                                                         <img
                                                             src={`${
@@ -193,14 +205,12 @@ const ApplicationListModal = ({
                             )}
                         </div>
                         <div>
-                            {/* [수정 5] 상세 정보에서도 applicant 객체 내부 접근 */}
                             <h3>{selectedApplication.applicant?.name || "이름 없음"}</h3>
                             <p className="applicant-email">
                                 {selectedApplication.applicant?.email || "이메일 없음"}
                             </p>
                             <div className="application-date">
                                 <GoCalendar size={14} />
-                                {/* [수정 6] 날짜 필드 createdAt 우선 사용 */}
                                 신청일:{" "}
                                 {formatDate(
                                     selectedApplication.createdAt || selectedApplication.submittedAt
@@ -219,8 +229,6 @@ const ApplicationListModal = ({
                     <div className="answers-section">
                         <h4>신청서 답변</h4>
                         {applicationForm.questions.map((question, index) => {
-                            // [수정 7] 답변 찾아오는 로직 변경 (배열 대응)
-                            // 질문의 ID가 _id인지 id인지 확인
                             const qId = question._id || question.id;
                             const answerText = findAnswer(selectedApplication.answers, qId);
 
@@ -233,7 +241,6 @@ const ApplicationListModal = ({
                                         )}
                                     </div>
                                     <div className="answer-content">
-                                        {/* 답변이 있으면 출력, 없으면 안내 문구 */}
                                         {answerText ? (
                                             answerText
                                         ) : (
@@ -247,15 +254,17 @@ const ApplicationListModal = ({
 
                     {selectedApplication.status === "pending" && (
                         <div className="application-actions">
+                            {/* [수정됨] 여기서 onReject 대신 handleReject 사용 */}
                             <button
                                 className="btn btn-outline btn-danger"
-                                onClick={() => onReject(selectedApplication._id)}
+                                onClick={() => handleReject(selectedApplication._id)}
                             >
                                 <RxCross2 size={20} /> 거절
                             </button>
+                            {/* [수정됨] 여기서 onApprove 대신 handleApprove 사용 */}
                             <button
                                 className="btn btn-primary"
-                                onClick={() => onApprove(selectedApplication._id)}
+                                onClick={() => handleApprove(selectedApplication._id)}
                             >
                                 <GoCheck size={20} /> 승인
                             </button>

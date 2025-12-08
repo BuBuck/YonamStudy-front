@@ -246,24 +246,65 @@ function GroupPage() {
 
     // 신청서 승인 핸들러
     const handleApprove = async (applicationId) => {
-        setApplications(
-            applications.map((app) =>
-                app.id === applicationId ? { ...app, status: "approved" } : app
-            )
-        );
-        alert("신청서가 승인되었습니다!");
+        if (!confirm("이 신청자를 스터디 멤버로 승인하시겠습니까?")) return;
+
+        try {
+            // 1. 서버에 승인 요청 (PATCH)
+            await axios.patch(
+                `${
+                    import.meta.env.VITE_BACKEND_URL
+                }/api/study-groups/${groupId}/applications/${applicationId}`,
+                { status: "approved" }
+            );
+
+            // 2. 프론트엔드 목록 갱신 (화면 반영)
+            setApplications((prev) =>
+                prev.map((app) =>
+                    // _id 또는 id 둘 다 대응
+                    app._id === applicationId || app.id === applicationId
+                        ? { ...app, status: "approved" }
+                        : app
+                )
+            );
+
+            // 3. 멤버가 늘어났으니 그룹 정보 다시 불러오기 (인원수 갱신 등)
+            fetchGroupData();
+
+            alert("신청서가 승인되었습니다!");
+        } catch (error) {
+            console.error("승인 실패:", error);
+            alert("승인 처리 중 오류가 발생했습니다.");
+        }
     };
 
     // 신청서 거절 핸들러
     const handleReject = async (applicationId) => {
-        setApplications(
-            applications.map((app) =>
-                app.id === applicationId ? { ...app, status: "rejected" } : app
-            )
-        );
-        alert("신청서가 거절되었습니다!");
-    };
+        if (!confirm("정말 거절하시겠습니까?")) return;
 
+        try {
+            // 1. 서버에 거절 요청 (PATCH)
+            await axios.patch(
+                `${
+                    import.meta.env.VITE_BACKEND_URL
+                }/api/study-groups/${groupId}/applications/${applicationId}`,
+                { status: "rejected" }
+            );
+
+            // 2. 프론트엔드 목록 갱신
+            setApplications((prev) =>
+                prev.map((app) =>
+                    app._id === applicationId || app.id === applicationId
+                        ? { ...app, status: "rejected" }
+                        : app
+                )
+            );
+
+            alert("신청서가 거절되었습니다.");
+        } catch (error) {
+            console.error("거절 실패:", error);
+            alert("거절 처리 중 오류가 발생했습니다.");
+        }
+    };
     const handleDayToggle = (day) => {
         setFormData((prev) => {
             const currentWeeks = prev.schedule.weeks;
