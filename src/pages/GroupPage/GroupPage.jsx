@@ -484,6 +484,28 @@ function GroupPage() {
         }
     };
 
+    const handleKickMember = async (memberId, memberName) => {
+        if (!confirm(`${memberName} 님을 정말 스터디에서 내보내시겠습니까?`)) return;
+
+        try {
+            // 탈퇴 API 재사용 (userId만 강퇴 대상의 ID로 바꿔서 보냄)
+            await axios.delete(
+                `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/members`,
+                {
+                    data: { userId: memberId }, // 삭제할 멤버의 ID
+                }
+            );
+
+            alert(`${memberName} 님을 내보냈습니다.`);
+
+            // 변경된 멤버 리스트 반영을 위해 데이터 새로고침
+            fetchGroupData();
+        } catch (error) {
+            console.error("멤버 강퇴 실패:", error);
+            alert("멤버 내보내기 중 오류가 발생했습니다.");
+        }
+    };
+
     return (
         <div className="group-detail-page">
             <div className="group-hero">
@@ -625,6 +647,7 @@ function GroupPage() {
                                 명)
                             </h2>
                             <div className="members-grid">
+                                {/* 리더 표시 (강퇴 버튼 없음) */}
                                 <div className="member-item">
                                     <img
                                         className="leader-avatar"
@@ -639,8 +662,9 @@ function GroupPage() {
                                     </div>
                                 </div>
 
+                                {/* 일반 멤버 표시 (수정 모드일 때 강퇴 버튼 표시) */}
                                 {group.groupMembers?.map((member) => (
-                                    <div className="member-item">
+                                    <div className="member-item" key={member._id}>
                                         <img
                                             className="member-avatar"
                                             src={`${import.meta.env.VITE_BACKEND_URL}${
@@ -651,6 +675,29 @@ function GroupPage() {
                                             <div className="member-name">{member?.name}</div>
                                             <div className="member-role">멤버</div>
                                         </div>
+
+                                        {/* [추가된 부분] 수정 모드(isEditing)일 때만 X 버튼 표시 */}
+                                        {isEditing && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleKickMember(member._id, member.name)
+                                                }
+                                                style={{
+                                                    marginLeft: "auto", // 오른쪽 끝으로 밀기
+                                                    background: "none",
+                                                    border: "none",
+                                                    cursor: "pointer",
+                                                    color: "#ff4d4f", // 빨간색
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "5px",
+                                                }}
+                                                title="멤버 내보내기"
+                                            >
+                                                <GoX size={20} />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>

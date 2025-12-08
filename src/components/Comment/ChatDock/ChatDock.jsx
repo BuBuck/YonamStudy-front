@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import socket from "../../server";
-import { onGroupCreated } from "../../utils/groupSignal";
-import { formatTime } from "../../utils/timeUtils";
+import socket from "../../../server";
+import { onGroupCreated } from "../../../utils/groupSignal";
+import { formatTime } from "../../../utils/timeUtils";
 
 import { GoScreenFull, GoChevronLeft, GoX, GoPlus } from "react-icons/go";
 import { IoPaperPlaneOutline } from "react-icons/io5";
