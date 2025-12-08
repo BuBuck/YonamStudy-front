@@ -488,7 +488,7 @@ function GroupPage() {
         if (!confirm(`${memberName} 님을 정말 스터디에서 내보내시겠습니까?`)) return;
 
         try {
-            // 탈퇴 API 재사용 (userId만 강퇴 대상의 ID로 바꿔서 보냄)
+            // 탈퇴 API 재사용 (userId만 강퇴 대상의 ID로 바꿔서 보냄) 
             await axios.delete(
                 `${import.meta.env.VITE_BACKEND_URL}/api/study-groups/${groupId}/members`,
                 {
@@ -664,7 +664,14 @@ function GroupPage() {
 
                                 {/* 일반 멤버 표시 (수정 모드일 때 강퇴 버튼 표시) */}
                                 {group.groupMembers?.map((member) => (
-                                    <div className="member-item" key={member._id}>
+                                    <div
+                                        className="member-item"
+                                        key={member._id}
+                                        onClick={() =>
+                                            isEditing && handleKickMember(member._id, member.name)
+                                        }
+                                        style={isEditing ? { backgroundColor: "#ffe3e3ff" } : {}}
+                                    >
                                         <img
                                             className="member-avatar"
                                             src={`${import.meta.env.VITE_BACKEND_URL}${
@@ -675,29 +682,6 @@ function GroupPage() {
                                             <div className="member-name">{member?.name}</div>
                                             <div className="member-role">멤버</div>
                                         </div>
-
-                                        {/* [추가된 부분] 수정 모드(isEditing)일 때만 X 버튼 표시 */}
-                                        {isEditing && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleKickMember(member._id, member.name)
-                                                }
-                                                style={{
-                                                    marginLeft: "auto", // 오른쪽 끝으로 밀기
-                                                    background: "none",
-                                                    border: "none",
-                                                    cursor: "pointer",
-                                                    color: "#ff4d4f", // 빨간색
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    padding: "5px",
-                                                }}
-                                                title="멤버 내보내기"
-                                            >
-                                                <GoX size={20} />
-                                            </button>
-                                        )}
                                     </div>
                                 ))}
                             </div>
