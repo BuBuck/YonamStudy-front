@@ -61,18 +61,6 @@ const SearchPage = () => {
             <div className="container">
                 <div className="search-layout">
                     <aside className="search-sidebar">
-                        {/* 검색 섹션 (위로 올림 - 보통 검색이 제일 위에 있는게 편해서 배치 조정했습니다. 원하시면 순서 바꾸셔도 됩니다) */}
-                        <div className="filter-section">
-                            <h3 className="filter-title">검색</h3>
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="제목, 내용, 태그로 검색..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-
                         {/* 난이도 필터 섹션 */}
                         <div className="filter-section">
                             <h3 className="filter-title">난이도</h3>
