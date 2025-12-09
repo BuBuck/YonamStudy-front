@@ -1,4 +1,4 @@
-# YonamStudy-front (연암스터디-프론트)
+# YonamStudy-front
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
@@ -42,7 +42,7 @@ YonamStudy-front는 스터디 그룹을 찾고, 생성하며, 관리할 수 있�
 
 1.  **레포지토리 클론**
     ```bash
-    git clone https://github.com/your-username/YonamStudy-front.git
+    git clone https://github.com/bubuck/YonamStudy-front.git
     cd YonamStudy-front
     ```
 
@@ -55,7 +55,7 @@ YonamStudy-front는 스터디 그룹을 찾고, 생성하며, 관리할 수 있�
     프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 아래 내용을 채워주세요.
     ```env
     # 백엔드 API 서버의 주소
-    VITE_API_BASE_URL=http://localhost:8080
+    VITE_API_BASE_URL=http://localhost:5000
     ```
 
 4.  **개발 서버 실행**
@@ -107,3 +107,42 @@ YonamStudy-front는 스터디 그룹을 찾고, 생성하며, 관리할 수 있�
         ├───groupSignal.js        # 그룹 관련 시그널링 또는 상태 관리
         └───timeUtils.js          # 시간 포맷팅 등 시간 관련 유틸리티
 ```
+
+## 🧑‍💻 사용자 흐름 (User Flow)
+
+1.  **초기 접속 및 인증:**
+    *   사용자는 웹사이트에 접속하여 `MainPage`를 보게 되며, 여기에는 스터디 그룹 목록이 표시됩니다 (`GET ${VITE_BACKEND_URL}/api/study-groups/`).
+    *   사용자는 로그인 페이지 (`/auth/login`)로 이동합니다.
+    *   **로그인**: `POST ${VITE_BACKEND_URL}/api/auth/login` 엔드포인트로 자격 증명을 제출합니다.
+    *   **회원가입**: `POST ${VITE_BACKEND_URL}/api/auth/signup` 엔드포인트로 세부 정보를 제출합니다.
+    *   **비밀번호 찾기**: `POST ${VITE_BACKEND_URL}/api/auth/forgot-password` 엔드포인트를 통해 비밀번호 재설정 링크를 요청합니다.
+    *   **비밀번호 재설정**: `POST ${VITE_BACKEND_URL}/api/auth/reset-password` 엔드포인트를 통해 새 비밀번호를 제출합니다.
+    *   인증 성공 시, 사용자 인증 상태는 `AuthContext`와 `localStorage`를 통해 저장되며, 사용자는 리디렉션됩니다.
+
+2.  **스터디 그룹 흐름:**
+    *   **그룹 검색/탐색**: 사용자는 `GET ${VITE_BACKEND_URL}/api/study-groups/`에서 데이터를 가져와 `/search` 페이지에서 스터디 그룹을 보고 필터링할 수 있습니다.
+    *   **그룹 상세 보기**: 그룹을 클릭하면 `/group/:groupId`로 이동하며, `GET ${VITE_BACKEND_URL}/api/study-groups/${groupId}`에서 세부 정보를 가져옵니다.
+    *   **그룹 생성**: 인증된 사용자는 `/group/create`에서 양식을 작성하여 `POST ${VITE_BACKEND_URL}/api/study-groups/`로 요청을 보내 그룹을 생성합니다.
+    *   **그룹 가입 (신청)**: 그룹 페이지에서 비회원은 `POST ${VITE_BACKEND_URL}/api/study-groups/${groupId}/applications` 엔드포인트로 신청서를 제출하여 가입할 수 있습니다.
+    *   **신청 관리 (그룹장)**: 그룹장은 `GET ${VITE_BACKEND_URL}/api/study-groups/${groupId}/applications`를 통해 신청서를 가져올 수 있으며, `PATCH ${VITE_BACKEND_URL}/api/study-groups/${groupId}/applications/${applicationId}`를 통해 승인/거절할 수 있습니다.
+    *   **그룹 정보 업데이트 (그룹장)**: 그룹장은 `PUT ${VITE_BACKEND_URL}/api/study-groups/${groupId}`를 통해 그룹 세부 정보를 업데이트할 수 있습니다.
+    *   **그룹 이미지 업데이트 (그룹장)**: 그룹장은 `PUT ${VITE_BACKEND_URL}/api/study-groups/update-groupImage`를 통해 그룹 이미지를 업데이트할 수 있습니다.
+    *   **그룹 삭제 (그룹장)**: 그룹장은 `DELETE ${VITE_BACKEND_URL}/api/study-groups/${groupId}`를 통해 그룹을 삭제할 수 있습니다.
+    *   **그룹 탈퇴/멤버 강퇴**: 멤버는 `DELETE ${VITE_BACKEND_URL}/api/study-groups/${groupId}/members`를 통해 그룹을 탈퇴할 수 있으며, 그룹장은 멤버를 강퇴할 수 있습니다.
+    *   **신청 양식 질문 관리 (그룹장)**: 그룹장은 `PUT ${VITE_BACKEND_URL}/api/study-groups/${groupId}/questions`를 통해 신청 양식 질문을 저장할 수 있습니다.
+
+3.  **채팅 및 알림:**
+    *   그룹 멤버는 실시간 채팅에 접근할 수 있습니다.
+    *   애플리케이션은 `GET ${VITE_BACKEND_URL}/api/study-groups/notification`에서 채팅 알림을, `GET ${VITE_BACKEND_URL}/api/study-groups/lastMessages`에서 마지막 메시지를 가져옵니다.
+    *   실시간 통신은 Socket.IO를 통해 처리됩니다.
+
+4.  **대시보드 및 사용자 프로필:**
+    *   사용자는 대시보드 (`/dashboard`)에 접속할 수 있습니다.
+    *   **사용자 정보 업데이트**: 사용자는 `PUT ${VITE_BACKEND_URL}/api/users/${userId}`를 통해 정보를 업데이트할 수 있습니다.
+    *   **사용자 프로필 이미지 업데이트**: 사용자는 `PUT ${VITE_BACKEND_URL}/api/users/update-userProfile`를 통해 프로필 사진을 업데이트할 수 있습니다.
+
+5.  **댓글:**
+    *   **댓글 가져오기**: `GET ${VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`
+    *   **댓글 작성**: `POST ${VITE_BACKEND_URL}/api/study-groups/${groupId}/comments`
+    *   **댓글 수정**: `PUT ${VITE_BACKEND_URL}/api/study-groups/${groupId}/comments/${commentId}`
+    *   **댓글 삭제**: `DELETE ${VITE_BACKEND_URL}/api/study-groups/${groupId}/comments/${commentId}`
