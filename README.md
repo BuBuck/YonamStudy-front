@@ -67,7 +67,7 @@ YonamStudy-front는 스터디 그룹을 찾고, 생성하며, 관리할 수 있�
 ## 📁 프로젝트 구조
 
 ```
-/Users/sunjeongin/MyProject/YonamStudy-front/
+YonamStudy-front/
 ├───.gitignore
 ├───eslint.config.js      # ESLint 설정 파일
 ├───index.html            # 애플리케이션의 메인 HTML 파일
