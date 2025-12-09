@@ -55,7 +55,7 @@ YonamStudy-front는 스터디 그룹을 찾고, 생성하며, 관리할 수 있�
     프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 아래 내용을 채워주세요.
     ```env
     # 백엔드 API 서버의 주소
-    VITE_API_BASE_URL=http://localhost:5000
+    VITE_BACKEND_URL=http://localhost:5000
     ```
 
 4.  **개발 서버 실행**
